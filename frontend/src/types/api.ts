@@ -1147,3 +1147,92 @@ export interface SalPaymentPageParams {
   month?: string | null
   status?: number | null
 }
+
+// ==================================================================
+// 报表统计（report/**）
+//
+// 一页 8 图**一次性载荷**（ReportOverviewVO）：8 张图共用同一个「name/value」形状
+// （ReportItemVO），饼图/柱状图/折线图都吃 name+value，前端渲染代码可复用。
+// ⚠️ 口径（详见后端 ReportOverviewVO 注释）：
+//    · 人员结构类（性别/学历/年龄/工龄/部门）**只统计在职**，各项之和 = total；
+//    · 流动类（入职/辞职/离职率）用**全量**（含离职）。
+// ==================================================================
+
+/** 报表单项（ReportItemVO） */
+export interface ReportItem {
+  /** 分类名，如「男」「本科」「25-29岁」「技术部」「3月」 */
+  name: string
+  /** 计数值（人数） */
+  value: number
+}
+
+/** 统计图表总览（ReportOverviewVO） */
+export interface ReportOverview {
+  /** 在职人数（employ_type ≠ 3） */
+  total: number
+  /** 离职人数（employ_type = 3） */
+  resigned: number
+  /** 离职率（百分比，保留 2 位小数） */
+  turnoverRate: number
+  /** 趋势统计年份 */
+  year: number
+  gender: ReportItem[]
+  education: ReportItem[]
+  age: ReportItem[]
+  workYears: ReportItem[]
+  dept: ReportItem[]
+  /** 入职趋势（指定年份 1–12 月） */
+  hireTrend: ReportItem[]
+  /** 辞职趋势（指定年份 1–12 月） */
+  resignTrend: ReportItem[]
+}
+
+// ==================================================================
+// 公共查询（query/**）
+//
+// 职工查询是只读的 hr_employee 视图（分页结果 = EmployeeVO，复用其类型）；
+// 通知管理用 sys_notice。
+// ==================================================================
+
+/**
+ * 通知公告（sys_notice）。
+ * 状态机：0 草稿 → 发布 → 1 已发布 → 下线 → 2 已下线 → 再发布 → 1。
+ * `publisher` / `publishTime` 由服务端在发布时写入，`printCount` 由打印接口自增。
+ */
+export interface SysNotice {
+  id: number
+  title: string
+  /** 1通知 2公告（不在 sys_dict 里，前端硬编码） */
+  noticeType: number
+  content: string | null
+  /** 发布人（服务端写） */
+  publisher: string | null
+  /** 发布时间（服务端写） */
+  publishTime: string | null
+  /** 0草稿 1已发布 2已下线 */
+  status: number
+  /** 打印次数 */
+  printCount: number
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 通知入参（NoticeDTO）—— 刻意不含 publisher/publishTime/status/printCount（走专用接口） */
+export interface NoticeDTO {
+  id: number | null
+  title: string
+  noticeType: number | null
+  content: string | null
+  remark: string | null
+}
+
+/** 通知分页查询参数（GET /api/query/notice/page） */
+export interface NoticePageParams {
+  current?: number
+  size?: number
+  title?: string
+  noticeType?: number | null
+  status?: number | null
+}
