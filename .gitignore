@@ -1,0 +1,26 @@
+### 构建产物 ###
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+### 运行时数据（不入库） ###
+backend/uploads/
+*.log
+logs/
+
+### 临时脚本目录：只保留脚本本身，忽略日志与中间产物 ###
+.tmp_script/*.log
+.tmp_script/*.txt
+
+### IDE / 编辑器 ###
+.idea/
+*.iml
+*.ipr
+*.iws
+
+### 操作系统 ###
+.DS_Store
+Thumbs.db
+desktop.ini

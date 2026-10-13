@@ -1,0 +1,23 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+# 保留 settings.json：项目约定（关闭 Java autobuild / 空值分析），勿删
+.vscode/*
+!.vscode/settings.json
+
+### 日志与临时文件 ###
+*.log
+logs/
+
+### OS ###
+.DS_Store
+Thumbs.db

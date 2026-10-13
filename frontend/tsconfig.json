@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    /* Vite + Vue 3 工程（create-vue 同款骨架） */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+
+    /* 路径别名与 vite.config 的 alias 对齐 */
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+
+    /* 类型严格度：开 strict 抓真问题；noUnusedLocals/Parameters 先关，
+       避免页面快速迭代时被未使用变量卡住（课设项目求稳） */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "vite.config.ts"
+  ]
+}

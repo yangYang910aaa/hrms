@@ -1,0 +1,51 @@
+:root {
+  --hr-sidebar-width: 220px;
+  --hr-header-height: 56px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  color: #303133;
+  background-color: #f0f2f5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 页面通用容器：与后端分页查询栏保持一致的间距 */
+.page-container {
+  padding: 16px;
+}
+
+.page-card {
+  background: #fff;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.page-toolbar {
+  margin-bottom: 16px;
+}
+
+.page-pager {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
