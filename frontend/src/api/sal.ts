@@ -3,7 +3,6 @@ import type {
   ApiResult,
   PageResult,
   SalArchiveBatchCalcDTO,
-  SalArchiveCalcDTO,
   SalArchiveCalcResultVO,
   SalArchivePageParams,
   SalArchiveUpdateDTO,
@@ -175,12 +174,10 @@ export const archivePage = (
 ): Promise<ApiResult<PageResult<SalArchiveVO>>> =>
   request.get<PageResult<SalArchiveVO>>('/sal/archive/page', { params })
 
-/** 单人计算（生成该职工该月档案）。没设薪酬级别的职工会 400 提示 */
-export const calcArchive = (data: SalArchiveCalcDTO): Promise<ApiResult<number>> =>
-  request.post<number>('/sal/archive', data)
-
 /**
- * 批量计算（工资档案页的重点动作）。
+ * 批量计算（工资档案页唯一的计算入口：选月份 + 可选指定职工，不选即全部未删除职工）。
+ * ⚠️ 后端另有「单人计算」`POST /sal/archive`，但本页用「批量 + 指定一个职工」即可覆盖，
+ *    不额外封装 —— 没被页面调用的接口函数等于死代码。
  * `employeeIds` **不传 = 全部未删除职工**（含离职，便于结清当月工资）；
  * 没设薪酬级别的**跳过并在 notices 里提示**；**单人失败不拖垮整批**（记 SKIPPED，其他人照算）。
  * 重算**只覆盖草稿(0)**，且**不冲掉已手改的 deductAmount / tax**。
