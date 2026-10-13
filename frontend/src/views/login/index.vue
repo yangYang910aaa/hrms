@@ -37,7 +37,7 @@
         </el-button>
       </el-form>
 
-      <p class="tip">演示账号：admin / ***REMOVED***（超级管理员，可见全部菜单）</p>
+      <p class="tip">演示账号：admin（口令见 .local/credentials.md，该文件不入库）</p>
     </div>
   </div>
 </template>

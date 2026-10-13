@@ -14,6 +14,12 @@ logs/
 .tmp_script/*.log
 .tmp_script/*.txt
 
+### 本地凭据 / 含明文口令的文件（推 GitHub 前必须排除，见 .local/credentials.md） ###
+.local/
+.tmp_script/_secrets.py
+backend/src/main/resources/application.yml
+backend/src/main/resources/application-local.yml
+
 ### IDE / 编辑器 ###
 .idea/
 *.iml

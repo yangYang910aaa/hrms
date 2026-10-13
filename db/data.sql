@@ -7,7 +7,7 @@
 --         社保比例 6 项 + 通知公告示例
 --         薪酬级别 + 加班标准（供 M5 工资计算开箱即用）
 --         4 名演示职工（供图表与工资计算演示，可随时删除）
---  账号 : admin / ***REMOVED***   （BCrypt $2a$10$ 存储）
+--  账号 : admin / <口令见 .local/credentials.md，该文件不入库>   （BCrypt $2a$10$ 存储）
 -- =============================================================================
 
 SET NAMES utf8mb4;
@@ -34,7 +34,7 @@ INSERT INTO `sys_role` (`id`,`role_name`,`role_code`,`sort`,`status`,`remark`) V
   (3, '薪酬专员',   'SAL_SPECIALIST', 3, 1, '薪酬管理全域');
 
 -- ---------------------------------------------------------------------------
--- 3. 用户（口令均为 ***REMOVED***，BCrypt $2a$ 已实测可校验）
+-- 3. 用户（口令见 .local/credentials.md，BCrypt $2a$ 已实测可校验）
 -- ---------------------------------------------------------------------------
 DELETE FROM `sys_user`;
 INSERT INTO `sys_user` (`id`,`username`,`password`,`real_name`,`dept_id`,`phone`,`email`,`status`) VALUES
