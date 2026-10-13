@@ -386,9 +386,13 @@ function employTypeTag(employType: number | null): 'success' | 'warning' | 'info
 
 // ---------- 删除 ----------
 async function onDelete(row: EmployeeVO) {
-  await ElMessageBox.confirm(`确认删除职工【${row.name}】？删除后工号可重新录入。`, '提示', {
-    type: 'warning'
-  })
+  try {
+    await ElMessageBox.confirm(`确认删除职工【${row.name}】？删除后工号可重新录入。`, '提示', {
+      type: 'warning'
+    })
+  } catch {
+    return // 用户点了取消：confirm 取消是抛异常，不接住就是一条未处理的 rejection
+  }
   await deleteEmployee(row.id)
   ElMessage.success('删除成功')
   // 删完本页只剩一条且不在第一页时，退一页，避免看到空页
