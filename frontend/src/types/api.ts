@@ -378,3 +378,407 @@ export interface SocialRatePageParams {
   rateName?: string
   status?: number | null
 }
+
+// ==================================================================
+// 人事模块子表（hr/**）
+//
+// ⚠️ 这 6 张表的**分页接口直出实体**（`R<Page<HrXxx>>`，不是 VO）——
+//    字段就是表列，**没有职工姓名**：列表要显示姓名得前端拿
+//    /api/common/employee-options 翻译 employeeId（见 utils/lookup.ts）。
+//    日期是 `YYYY-MM-DD` 字符串；时间是 ISO `YYYY-MM-DDTHH:mm:ss`（实测）。
+//
+// ⚠️ DTO 字段**一律写成"必填 + 可空"（不加 `?`）**：空值统一用 `null`。
+//    两个原因：① el-input-number 的 modelValue 只接受 `number | null`，可选属性会带出
+//    `undefined` 而类型不过；② 后端更新一律"传 null = 保持原值"，显式 null 与不传等价。
+// ==================================================================
+
+/** 职工社保（hr_social_security）。⚠️ (employeeId, month) 是 DB 唯一键，重复登记后端回 400 */
+export interface SocialSecurity {
+  id: number
+  employeeId: number
+  ssNo: string | null
+  /** 缴费基数 */
+  baseAmount: number | null
+  /** 单位比例（0~1 小数，0.16 = 16%） */
+  companyRate: number | null
+  /** 个人比例（0~1 小数） */
+  personalRate: number | null
+  /** 单位缴纳额；不填时后端按「基数 × 单位比例」自动算 */
+  companyAmount: number | null
+  /** 个人缴纳额；不填时后端按「基数 × 个人比例」自动算 */
+  personalAmount: number | null
+  /** 所属月份 YYYY-MM */
+  month: string
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 职工社保入参（SocialSecurityDTO） */
+export interface SocialSecurityDTO {
+  id: number | null
+  employeeId: number | null
+  ssNo: string | null
+  baseAmount: number | null
+  companyRate: number | null
+  personalRate: number | null
+  companyAmount: number | null
+  personalAmount: number | null
+  month: string
+}
+
+/** 职工社保分页查询参数（GET /api/hr/social/page） */
+export interface SocialSecurityPageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+}
+
+/** 奖罚登记（hr_reward_punish） */
+export interface RewardPunish {
+  id: number
+  employeeId: number
+  /** 1奖励 2处罚（字典 reward_type） */
+  type: number
+  reason: string
+  amount: number | null
+  happenDate: string | null
+  operator: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 奖罚登记入参（RewardPunishDTO） */
+export interface RewardPunishDTO {
+  id: number | null
+  employeeId: number | null
+  type: number | null
+  reason: string
+  amount: number | null
+  happenDate: string | null
+  operator: string | null
+}
+
+/** 奖罚登记分页查询参数（GET /api/hr/reward/page） */
+export interface RewardPunishPageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  type?: number | null
+}
+
+/**
+ * 职工调动（hr_transfer）。
+ * 这是一张**登记表**，不会自动改写 hr_employee 的部门/岗位。
+ * `from*` 是**历史快照**：不填时后端按「入参 → 本条已有值 → 主档当前值」的链取，
+ * 所以编辑时必须把已有值原样回传，否则会改写历史。
+ */
+export interface Transfer {
+  id: number
+  employeeId: number
+  fromDeptId: number | null
+  toDeptId: number | null
+  fromPosition: string | null
+  toPosition: string | null
+  transferDate: string | null
+  reason: string | null
+  approver: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 职工调动入参（TransferDTO） */
+export interface TransferDTO {
+  id: number | null
+  employeeId: number | null
+  fromDeptId: number | null
+  toDeptId: number | null
+  fromPosition: string | null
+  toPosition: string | null
+  transferDate: string | null
+  reason: string | null
+  approver: string | null
+}
+
+/** 职工调动分页查询参数（GET /api/hr/transfer/page） */
+export interface TransferPageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+}
+
+/** 证书管理（hr_certificate）。后端校验「有效期不得早于发证日期」 */
+export interface Certificate {
+  id: number
+  employeeId: number
+  certName: string
+  certNo: string | null
+  issueOrg: string | null
+  issueDate: string | null
+  expireDate: string | null
+  fileUrl: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 证书管理入参（CertificateDTO） */
+export interface CertificateDTO {
+  id: number | null
+  employeeId: number | null
+  certName: string
+  certNo: string | null
+  issueOrg: string | null
+  issueDate: string | null
+  expireDate: string | null
+  fileUrl: string | null
+}
+
+/** 证书管理分页查询参数（GET /api/hr/certificate/page） */
+export interface CertificatePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  certName?: string | null
+}
+
+/**
+ * 实习生管理（hr_intern）—— **独立表**：实习生未必是职工，用姓名标识；
+ * employeeId 仅在「已转正(3)」时回填，后端两条互斥校验。
+ */
+export interface Intern {
+  id: number
+  name: string
+  school: string | null
+  major: string | null
+  deptId: number | null
+  mentor: string | null
+  startDate: string | null
+  endDate: string | null
+  /** 1实习中 2已结束 3已转正（**不在 sys_dict 里**，前端硬编码） */
+  status: number
+  /** 转正后关联的职工ID（仅 status=3 时有值） */
+  employeeId: number | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 实习生入参（InternDTO） */
+export interface InternDTO {
+  id: number | null
+  name: string
+  school: string | null
+  major: string | null
+  deptId: number | null
+  mentor: string | null
+  startDate: string | null
+  endDate: string | null
+  status: number | null
+  employeeId: number | null
+}
+
+/** 实习生分页查询参数（GET /api/hr/intern/page） */
+export interface InternPageParams {
+  current?: number
+  size?: number
+  name?: string
+  deptId?: number | null
+  status?: number | null
+}
+
+/**
+ * 请假单（hr_leave）。
+ * ⚠️ 状态/审批三字段**只能由审批专用接口改**，通用更新接口刻意不碰它们。
+ * 状态机：0 待审批 → 1 已通过 / 2 已驳回。
+ */
+export interface Leave {
+  id: number
+  employeeId: number
+  /** 请假类型（字典 leave_type） */
+  leaveType: number
+  /** ISO 时间字符串，如 2026-10-13T09:00:00 */
+  startTime: string
+  endTime: string
+  days: number | null
+  reason: string | null
+  /** 0待审批 1已通过 2已驳回 */
+  status: number
+  approver: string | null
+  approveTime: string | null
+  approveRemark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 请假单入参（LeaveDTO）—— 刻意不含 status/approver/approveTime/approveRemark */
+export interface LeaveDTO {
+  id: number | null
+  employeeId: number | null
+  leaveType: number | null
+  startTime: string | null
+  endTime: string | null
+  days: number | null
+  reason: string | null
+}
+
+/** 请假审批入参（LeaveApproveDTO）—— 审批人/审批时间由服务端写 */
+export interface LeaveApproveDTO {
+  /** 1通过 2驳回 */
+  status: number
+  approveRemark: string | null
+}
+
+/** 请假分页查询参数（GET /api/hr/leave/page） */
+export interface LeavePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  status?: number | null
+  leaveType?: number | null
+}
+
+// ==================================================================
+// 培训模块（trn/**）
+//
+// 同样是**分页接口直出实体**：列表显示课程名/部门名要靠
+// /api/common/course-options、/api/common/dept-tree 翻译。
+// 三张表**几乎没有业务校验**，靠 @NotNull / @NotBlank 兜底。
+// ==================================================================
+
+/** 培训课程（trn_course）—— 培训模块的课程主档，courseNo 唯一（删除改写让路） */
+export interface TrnCourse {
+  id: number
+  courseNo: string
+  courseName: string
+  /** 类别 1内部培训 2一线工培训 3其他（不在 sys_dict 里，前端硬编码） */
+  courseType: number
+  teacher: string | null
+  /** 课时 DECIMAL(6,1) */
+  hours: number | null
+  /** 学分 DECIMAL(4,1) */
+  credit: number | null
+  content: string | null
+  /** 1启用 0停用 */
+  status: number
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 课程入参（TrnCourseDTO） */
+export interface TrnCourseDTO {
+  id: number | null
+  courseNo: string
+  courseName: string
+  courseType: number | null
+  teacher: string | null
+  hours: number | null
+  credit: number | null
+  content: string | null
+  status: number | null
+  remark: string | null
+}
+
+/** 课程分页查询参数（GET /api/trn/course/page） */
+export interface TrnCoursePageParams {
+  current?: number
+  size?: number
+  courseName?: string
+  courseType?: number | null
+  status?: number | null
+}
+
+/** 内部培训期次（trn_internal）。deptId 可空；planPersons/actualPersons/status 是 NOT NULL 列，更新不传保持原值 */
+export interface TrnInternal {
+  id: number
+  courseId: number
+  batchNo: string | null
+  deptId: number | null
+  trainer: string | null
+  place: string | null
+  startDate: string | null
+  endDate: string | null
+  planPersons: number | null
+  actualPersons: number | null
+  /** 0计划 1进行中 2已完成 */
+  status: number
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 内部培训入参（TrnInternalDTO） */
+export interface TrnInternalDTO {
+  id: number | null
+  courseId: number | null
+  batchNo: string | null
+  deptId: number | null
+  trainer: string | null
+  place: string | null
+  startDate: string | null
+  endDate: string | null
+  planPersons: number | null
+  actualPersons: number | null
+  status: number | null
+  remark: string | null
+}
+
+/** 内部培训分页查询参数（GET /api/trn/internal/page） */
+export interface TrnInternalPageParams {
+  current?: number
+  size?: number
+  courseId?: number | null
+  deptId?: number | null
+  status?: number | null
+}
+
+/** 一线工培训期次（trn_frontline）。与内部培训分表：deptId **必填**，用「参训/合格人数」 */
+export interface TrnFrontline {
+  id: number
+  courseId: number
+  batchNo: string | null
+  /** 参训（生产）部门，NOT NULL */
+  deptId: number
+  trainer: string | null
+  startDate: string | null
+  endDate: string | null
+  workerCount: number | null
+  qualifiedCount: number | null
+  /** 0计划 1进行中 2已完成 */
+  status: number
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 一线工培训入参（TrnFrontlineDTO） */
+export interface TrnFrontlineDTO {
+  id: number | null
+  courseId: number | null
+  batchNo: string | null
+  deptId: number | null
+  trainer: string | null
+  startDate: string | null
+  endDate: string | null
+  workerCount: number | null
+  qualifiedCount: number | null
+  status: number | null
+  remark: string | null
+}
+
+/** 一线工培训分页查询参数（GET /api/trn/frontline/page） */
+export interface TrnFrontlinePageParams {
+  current?: number
+  size?: number
+  courseId?: number | null
+  deptId?: number | null
+  status?: number | null
+}
