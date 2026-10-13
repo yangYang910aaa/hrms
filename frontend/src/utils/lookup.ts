@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
-import { courseOptions, deptTree, employeeOptions } from '@/api/common'
+import { courseOptions, deptTree, employeeOptions, salaryLevelOptions } from '@/api/common'
 import { flattenTree } from '@/utils/tree'
-import type { CourseOption, DeptNode, EmployeeOption } from '@/types/api'
+import type { CourseOption, DeptNode, EmployeeOption, SalaryLevelOption } from '@/types/api'
 
 /**
  * 常用下拉源 + `id → 名称` 翻译（人事 6 套 / 培训 3 套页面共用）。
@@ -18,6 +18,7 @@ import type { CourseOption, DeptNode, EmployeeOption } from '@/types/api'
 const employees = ref<EmployeeOption[]>([])
 const depts = ref<DeptNode[]>([])
 const courses = ref<CourseOption[]>([])
+const salLevels = ref<SalaryLevelOption[]>([])
 
 /** 职工下拉（也供列表里 employeeId → 姓名） */
 export async function loadEmployees(): Promise<void> {
@@ -32,6 +33,11 @@ export async function loadDepts(): Promise<void> {
 /** 课程下拉（也供列表里 courseId → 课程名） */
 export async function loadCourses(): Promise<void> {
   courses.value = (await courseOptions()).data || []
+}
+
+/** 薪酬级别下拉（加班标准页；职工页也用同一份，别再各拉一次） */
+export async function loadSalLevels(): Promise<void> {
+  salLevels.value = (await salaryLevelOptions()).data || []
 }
 
 /**
@@ -80,6 +86,17 @@ export function courseName(id: number | null | undefined): string {
   return courses.value.find((c) => c.id === id)?.courseName ?? `#${id}`
 }
 
+/** 薪酬级别下拉的选项文案「级别名（编号）」 */
+export function salLevelLabel(level: SalaryLevelOption): string {
+  return `${level.levelName}（${level.levelNo}）`
+}
+
+/** levelId → 级别名（加班标准列表列用） */
+export function salLevelName(id: number | null | undefined): string {
+  if (id === null || id === undefined) return EMPTY
+  return salLevels.value.find((l) => l.id === id)?.levelName ?? `#${id}`
+}
+
 // 只导出页面真正用到的：部门树本身不导出（页面统一用拍平后的 `deptOptions`），
 // 避免又出现一个"看着有用、其实没人用"的导出。
-export { courses, employees }
+export { courses, employees, salLevels }

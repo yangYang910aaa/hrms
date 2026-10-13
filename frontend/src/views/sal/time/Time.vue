@@ -1,0 +1,325 @@
+<template>
+  <div class="sal-time-page">
+    <!-- 搜索栏 -->
+    <el-card shadow="never" class="search-card">
+      <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
+        <el-form-item label="职工">
+          <el-select v-model="query.employeeId" placeholder="全部" clearable filterable style="width: 200px">
+            <el-option v-for="e in employees" :key="e.id" :label="employeeLabel(e)" :value="e.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="所属月份">
+          <el-date-picker
+            v-model="query.month"
+            type="month"
+            value-format="YYYY-MM"
+            placeholder="全部"
+            clearable
+            style="width: 150px"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="onSearch">查询</el-button>
+          <el-button :icon="Refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 列表 -->
+    <el-card shadow="never">
+      <div class="toolbar">
+        <el-button v-permission="'sal:time:add'" type="primary" :icon="Plus" @click="openCreate">
+          新增计时工资
+        </el-button>
+        <span class="tip">
+          金额 = 工时 × 时薪（服务端算，前端不填）；时薪由你按临时工/外包的约定单价填写，不是 21.75 那套基本工资口径
+        </span>
+      </div>
+
+      <el-table :data="records" v-loading="loading" border>
+        <el-table-column label="职工" min-width="120">
+          <template #default="{ row }">{{ empName(row.employeeId) }}</template>
+        </el-table-column>
+        <el-table-column label="所属月份" prop="month" width="100" />
+        <el-table-column label="时薪" width="120" align="right">
+          <template #default="{ row }">{{ money(row.hourlyRate) }}</template>
+        </el-table-column>
+        <el-table-column label="工时" width="110" align="right">
+          <template #default="{ row }">{{ money(row.hours) }}</template>
+        </el-table-column>
+        <el-table-column label="金额" width="130" align="right">
+          <template #default="{ row }">
+            <strong>{{ money(row.amount) }}</strong>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="130" fixed="right">
+          <template #default="{ row }">
+            <el-button v-permission="'sal:time:edit'" link type="primary" @click="openEdit(row)">
+              修改
+            </el-button>
+            <el-button v-permission="'sal:time:remove'" link type="danger" @click="onDelete(row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+        <template #empty>暂无数据</template>
+      </el-table>
+
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="page.current"
+          v-model:page-size="page.size"
+          :total="total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="load"
+          @current-change="load"
+        />
+      </div>
+    </el-card>
+
+    <!-- 新增 / 修改弹窗 -->
+    <el-dialog
+      v-model="dialog.visible"
+      :title="dialog.mode === 'create' ? '新增计时工资' : '修改计时工资'"
+      width="600px"
+      top="6vh"
+      @closed="resetDialog"
+    >
+      <el-form ref="formRef" v-loading="dialog.submitting" :model="form" :rules="rules" label-width="96px">
+        <el-row :gutter="12">
+          <el-col :span="12">
+            <el-form-item label="职工" prop="employeeId">
+              <el-select v-model="form.employeeId" placeholder="请选择" filterable style="width: 100%">
+                <el-option v-for="e in employees" :key="e.id" :label="employeeLabel(e)" :value="e.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="所属月份" prop="month">
+              <el-date-picker
+                v-model="form.month"
+                type="month"
+                value-format="YYYY-MM"
+                placeholder="YYYY-MM"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="时薪">
+              <el-input-number
+                v-model="form.hourlyRate"
+                :min="0"
+                :max="99999999.99"
+                :precision="2"
+                :value-on-clear="null"
+                controls-position="right"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="工时">
+              <el-input-number
+                v-model="form.hours"
+                :min="0"
+                :max="99999.9"
+                :step="0.5"
+                :precision="1"
+                :value-on-clear="null"
+                controls-position="right"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <div class="field-tip">
+              金额由服务端按「工时 × 时薪」重算并落库。工时/时薪留空 = 保持原值（要置 0 请显式填 0）。
+              同一职工同月可以有多条，工资计算时按合计计入。
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="dialog.visible = false">取 消</el-button>
+        <el-button type="primary" :loading="dialog.submitting" @click="onSubmit">保 存</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { createTime, deleteTime, timePage, updateTime } from '@/api/sal'
+import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
+import { money } from '@/utils/format'
+import type { PageResult, SalTimeWage, SalTimeWageDTO, SalTimeWagePageParams } from '@/types/api'
+
+// ---------- 列表 ----------
+const loading = ref(false)
+const records = ref<SalTimeWage[]>([])
+const total = ref(0)
+const page = reactive({ current: 1, size: 10 })
+const query = reactive<{ employeeId: number | null; month: string | null }>({
+  employeeId: null,
+  month: null
+})
+
+async function load() {
+  loading.value = true
+  try {
+    const params: SalTimeWagePageParams = {
+      current: page.current,
+      size: page.size,
+      employeeId: query.employeeId,
+      month: query.month
+    }
+    const res = await timePage(params)
+    const data = (res.data || {}) as PageResult<SalTimeWage>
+    records.value = data.records || []
+    total.value = data.total || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+function onSearch() {
+  page.current = 1
+  load()
+}
+
+function onReset() {
+  query.employeeId = null
+  query.month = null
+  onSearch()
+}
+
+// ---------- 删除 ----------
+async function onDelete(row: SalTimeWage) {
+  try {
+    await ElMessageBox.confirm(
+      `确认删除职工【${empName(row.employeeId)}】${row.month} 的这条计时记录？`,
+      '提示',
+      { type: 'warning' }
+    )
+  } catch {
+    return
+  }
+  await deleteTime(row.id)
+  ElMessage.success('删除成功')
+  if (records.value.length === 1 && page.current > 1) {
+    page.current -= 1
+  }
+  load()
+}
+
+// ---------- 新增 / 修改 ----------
+const dialog = reactive({ visible: false, mode: 'create' as 'create' | 'edit', submitting: false })
+const formRef = ref<FormInstance>()
+
+const emptyForm = (): SalTimeWageDTO => ({
+  id: null,
+  employeeId: null,
+  month: '',
+  hourlyRate: null,
+  hours: null
+})
+
+const form = reactive<SalTimeWageDTO>(emptyForm())
+
+const rules: FormRules = {
+  employeeId: [{ required: true, message: '请选择职工', trigger: 'change' }],
+  month: [{ required: true, message: '请选择所属月份', trigger: 'change' }]
+}
+
+function openCreate() {
+  Object.assign(form, emptyForm())
+  dialog.mode = 'create'
+  dialog.visible = true
+}
+
+function openEdit(row: SalTimeWage) {
+  Object.assign(form, emptyForm(), {
+    id: row.id,
+    employeeId: row.employeeId,
+    month: row.month,
+    hourlyRate: row.hourlyRate,
+    hours: row.hours
+  })
+  dialog.mode = 'edit'
+  dialog.visible = true
+}
+
+function resetDialog() {
+  formRef.value?.clearValidate()
+  Object.assign(form, emptyForm())
+}
+
+async function onSubmit() {
+  if (!formRef.value) return
+  try {
+    await formRef.value.validate()
+  } catch {
+    return
+  }
+  dialog.submitting = true
+  try {
+    if (dialog.mode === 'create') {
+      await createTime(form)
+      ElMessage.success('新增成功')
+    } else {
+      await updateTime(form)
+      ElMessage.success('修改成功')
+    }
+    dialog.visible = false
+    load()
+  } catch {
+    // 失败消息由 request 拦截器统一弹出
+  } finally {
+    dialog.submitting = false
+  }
+}
+
+onMounted(() => {
+  loadEmployees()
+  load()
+})
+</script>
+
+<style scoped>
+.search-card {
+  margin-bottom: 12px;
+}
+
+.search-form :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tip,
+.field-tip {
+  font-size: 12px;
+  color: #909399;
+}
+
+.field-tip {
+  line-height: 1.4;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+</style>

@@ -200,9 +200,9 @@
             <el-form-item label="薪酬级别">
               <el-select v-model="form.salaryLevelId" placeholder="工资计算用" clearable style="width: 100%">
                 <el-option
-                  v-for="lv in levelOptions"
+                  v-for="lv in salLevels"
                   :key="lv.id"
-                  :label="`${lv.levelName}（${lv.levelNo}）`"
+                  :label="salLevelLabel(lv)"
                   :value="lv.id"
                 />
               </el-select>
@@ -292,17 +292,10 @@ import {
   employeePage,
   updateEmployee
 } from '@/api/employee'
-import { salaryLevelOptions } from '@/api/common'
 import { useDict } from '@/utils/dict'
-import { deptOptions, loadDepts } from '@/utils/lookup'
+import { deptOptions, loadDepts, loadSalLevels, salLevelLabel, salLevels } from '@/utils/lookup'
 import { getToken } from '@/utils/auth'
-import type {
-  EmployeeDTO,
-  EmployeePageParams,
-  EmployeeVO,
-  PageResult,
-  SalaryLevelOption
-} from '@/types/api'
+import type { EmployeeDTO, EmployeePageParams, EmployeeVO, PageResult } from '@/types/api'
 import type { ApiResult } from '@/types/api'
 
 // ---------- 字典与下拉数据 ----------
@@ -314,13 +307,9 @@ const employTypeOptions = computed(() =>
   (dictMap.value.employ_type || []).map((o) => ({ label: o.label, value: Number(o.value) }))
 )
 
-const levelOptions = ref<SalaryLevelOption[]>([])
-
 async function loadOptions() {
-  // 部门下拉走共享 lookup 层（与批次3 的 5 个页面同一份实现，别再各拍平一份）
-  await Promise.all([loadDict(), loadDepts()])
-  const level = await salaryLevelOptions()
-  levelOptions.value = level.data || []
+  // 部门与薪酬级别下拉都走共享 lookup 层（与批次3/批次4 的页面同一份实现，别再各拉一份）
+  await Promise.all([loadDict(), loadDepts(), loadSalLevels()])
 }
 
 // ---------- 列表 ----------

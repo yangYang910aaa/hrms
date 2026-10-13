@@ -782,3 +782,368 @@ export interface TrnFrontlinePageParams {
   deptId?: number | null
   status?: number | null
 }
+
+// ==================================================================
+// 薪酬模块（sal/**）
+//
+// 与 hr/trn 同样的两条约定：
+// ① 基础 6 套的分页接口**直出实体**（只有 employeeId / levelId，没有姓名与级别名）
+//    → 列表用 utils/lookup 翻译；
+// ② 工资档案 / 工资发放的分页接口**返回 VO**（联表带出了 empNo / employeeName / levelName）。
+//
+// ⚠️ **派生金额一律服务端算、DTO 里没有这些字段**（utility.totalFee、overtime 的 rate/amount、
+//    piece/time 的 amount、archive 的各项金额）—— 前端不传也传不了，这是故意的契约。
+// ⚠️ `sal_utility_fee` / `sal_archive` / `sal_payment` 的 `(employeeId, month)` 是**唯一键**。
+// ==================================================================
+
+/** 薪酬级别（sal_level）。levelNo 唯一（删除改写让路）；被加班标准或在册职工引用则不能删 */
+export interface SalLevel {
+  id: number
+  levelName: string
+  levelNo: string | null
+  /** 基本工资；也是加班时薪的计算基数 */
+  baseSalary: number | null
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 薪酬级别入参（SalLevelDTO） */
+export interface SalLevelDTO {
+  id: number | null
+  levelName: string
+  levelNo: string | null
+  baseSalary: number | null
+  remark: string | null
+}
+
+/** 薪酬级别分页查询参数（GET /api/sal/level/page） */
+export interface SalLevelPageParams {
+  current?: number
+  size?: number
+  levelName?: string
+}
+
+/** 加班标准（sal_overtime_standard）。复合唯一键 (levelId, overtimeType)，删除把 levelId 置 -id 让路 */
+export interface SalOvertimeStandard {
+  id: number
+  levelId: number
+  /** 加班类型（字典 overtime_type：1工作日 2休息日 3节假日） */
+  overtimeType: number
+  /** 倍率，如 1.5 */
+  rate: number | null
+  remark: string | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 加班标准入参（SalOvertimeStandardDTO） */
+export interface SalOvertimeStandardDTO {
+  id: number | null
+  levelId: number | null
+  overtimeType: number | null
+  rate: number | null
+  remark: string | null
+}
+
+/** 加班标准分页查询参数（GET /api/sal/overtime-standard/page） */
+export interface SalOvertimeStandardPageParams {
+  current?: number
+  size?: number
+  levelId?: number | null
+  overtimeType?: number | null
+}
+
+/** 水电费登记（sal_utility_fee）。⚠️ (employeeId, month) 唯一键；totalFee 服务端算 */
+export interface SalUtilityFee {
+  id: number
+  employeeId: number
+  month: string
+  waterFee: number | null
+  electricFee: number | null
+  dormFee: number | null
+  /** 派生：水 + 电 + 住宿 */
+  totalFee: number | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 水电费入参（SalUtilityFeeDTO）—— **不含 totalFee** */
+export interface SalUtilityFeeDTO {
+  id: number | null
+  employeeId: number | null
+  month: string
+  waterFee: number | null
+  electricFee: number | null
+  dormFee: number | null
+}
+
+/** 水电费分页查询参数（GET /api/sal/utility/page） */
+export interface SalUtilityFeePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+}
+
+/** 加班登记（sal_overtime_record）。rate/amount 服务端算；`(employeeId, month)` **没有**唯一键（同月可多条） */
+export interface SalOvertimeRecord {
+  id: number
+  employeeId: number
+  month: string
+  overtimeType: number
+  hours: number | null
+  /** 派生：当时用的倍率（快照） */
+  rate: number | null
+  /** 派生：时薪 × 倍率 × 小时；时薪 = 基本工资 ÷ 21.75 ÷ 8 */
+  amount: number | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 加班登记入参（SalOvertimeRecordDTO）—— **不含 rate/amount** */
+export interface SalOvertimeRecordDTO {
+  id: number | null
+  employeeId: number | null
+  month: string
+  overtimeType: number | null
+  hours: number | null
+}
+
+/** 加班登记分页查询参数（GET /api/sal/overtime/page） */
+export interface SalOvertimeRecordPageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+  overtimeType?: number | null
+}
+
+/** 计件工资（sal_piece_wage）。amount = 数量 × 单价，服务端算 */
+export interface SalPieceWage {
+  id: number
+  employeeId: number
+  month: string
+  productName: string | null
+  quantity: number | null
+  unitPrice: number | null
+  /** 派生：数量 × 单价 */
+  amount: number | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 计件工资入参（SalPieceWageDTO）—— **不含 amount** */
+export interface SalPieceWageDTO {
+  id: number | null
+  employeeId: number | null
+  month: string
+  productName: string | null
+  quantity: number | null
+  unitPrice: number | null
+}
+
+/** 计件工资分页查询参数（GET /api/sal/piece/page） */
+export interface SalPieceWagePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+}
+
+/** 计时工资（sal_time_wage）。amount = 工时 × 时薪，服务端算 */
+export interface SalTimeWage {
+  id: number
+  employeeId: number
+  month: string
+  hourlyRate: number | null
+  hours: number | null
+  /** 派生：工时 × 时薪 */
+  amount: number | null
+  createTime: string | null
+  updateTime: string | null
+  createBy: number | null
+}
+
+/** 计时工资入参（SalTimeWageDTO）—— **不含 amount** */
+export interface SalTimeWageDTO {
+  id: number | null
+  employeeId: number | null
+  month: string
+  hourlyRate: number | null
+  hours: number | null
+}
+
+/** 计时工资分页查询参数（GET /api/sal/time/page） */
+export interface SalTimeWagePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+}
+
+// ------------------------------------------------------------------ 工资档案 / 工资发放
+
+/**
+ * 工资档案（SalArchiveVO，**联表 VO**：带 empNo / employeeName / levelName）。
+ * 档案是**可追溯快照**：levelId / baseSalary 与各项金额都存当时值，之后改标准不影响它。
+ * 状态机：0 草稿 → 1 已确认 → 2 已发放；**已确认/已发放不可改、不可重算、不可删**。
+ */
+export interface SalArchiveVO {
+  id: number
+  employeeId: number
+  empNo: string | null
+  employeeName: string | null
+  employType: number | null
+  month: string
+  levelId: number | null
+  levelName: string | null
+  baseSalary: number | null
+  overtimeAmount: number | null
+  pieceAmount: number | null
+  timeAmount: number | null
+  /** 当月奖励 − 当月处罚 */
+  rewardAmount: number | null
+  socialSecurity: number | null
+  utilityFee: number | null
+  /** 其他扣款：**唯二可手改的字段之一** */
+  deductAmount: number | null
+  /** 个税：**唯二可手改的字段之一** */
+  tax: number | null
+  netSalary: number | null
+  status: number
+  calcTime: string | null
+  createTime: string | null
+  createBy: number | null
+}
+
+/** 单人计算档案（POST /api/sal/archive，body 即此） */
+export interface SalArchiveCalcDTO {
+  employeeId: number | null
+  month: string
+}
+
+/** 批量计算（POST /api/sal/archive/calc）。`employeeIds` 不传 = 全部未删除职工（含离职） */
+export interface SalArchiveBatchCalcDTO {
+  month: string
+  employeeIds: number[] | null
+}
+
+/** 档案手改（PUT /api/sal/archive）—— **只开放其他扣款与个税两个口子** */
+export interface SalArchiveUpdateDTO {
+  id: number | null
+  deductAmount: number | null
+  tax: number | null
+  remark: string | null
+}
+
+/** 批量计算的逐人明细（SalArchiveCalcItemVO） */
+export interface SalArchiveCalcItemVO {
+  employeeId: number
+  empNo: string | null
+  employeeName: string | null
+  employType: number | null
+  levelId: number | null
+  levelName: string | null
+  baseSalary: number | null
+  overtimeAmount: number | null
+  pieceAmount: number | null
+  timeAmount: number | null
+  rewardAmount: number | null
+  socialSecurity: number | null
+  /** 当月是否登记过社保（0 未登记，明细里会提示按 0 计） */
+  socialSecurityRegistered: number | null
+  utilityFee: number | null
+  deductAmount: number | null
+  tax: number | null
+  netSalary: number | null
+  /** 该人本次的动作：CREATED / UPDATED / SKIPPED 等 */
+  action: string | null
+  archiveId: number | null
+  archiveStatus: number | null
+  /** 逐人提示（如"没设薪酬级别，已跳过"） */
+  notices: string[]
+}
+
+/** 批量计算结果（SalArchiveCalcResultVO） */
+export interface SalArchiveCalcResultVO {
+  month: string
+  total: number
+  created: number
+  updated: number
+  skipped: number
+  /** 整批提示（含跳过原因、未登记社保的名单等） */
+  notices: string[]
+  items: SalArchiveCalcItemVO[]
+}
+
+/** 工资档案分页查询参数（GET /api/sal/archive/page） */
+export interface SalArchivePageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+  status?: number | null
+}
+
+/**
+ * 工资发放单（SalPaymentVO，联表 VO）。
+ * 状态机：0 未发放 → 1 已发放；`payDate` / `status` **只能由 `/{id}/pay` 服务端写**，
+ * 所以 SalPaymentUpdateDTO 里没有这两个字段。
+ */
+export interface SalPaymentVO {
+  id: number
+  employeeId: number
+  empNo: string | null
+  employeeName: string | null
+  month: string
+  netSalary: number | null
+  payDate: string | null
+  payWay: string | null
+  bankAccount: string | null
+  /** 0未发放 1已发放 */
+  status: number
+  remark: string | null
+  createTime: string | null
+}
+
+/** 生成发放单（POST /api/sal/payment）。只认已确认(1)的档案；`employeeIds` 不传 = 该月全部已确认档案 */
+export interface SalPaymentGenDTO {
+  month: string
+  employeeIds: number[] | null
+}
+
+/** 发放单修改（PUT /api/sal/payment）—— **不含 payDate / status** */
+export interface SalPaymentUpdateDTO {
+  id: number | null
+  payWay: string | null
+  bankAccount: string | null
+  remark: string | null
+}
+
+/** 生成发放单结果（SalPaymentGenResultVO） */
+export interface SalPaymentGenResultVO {
+  month: string
+  total: number
+  created: number
+  /** 该职工该月已有发放单，跳过 */
+  skippedExists: number
+  /** 该月还是草稿的档案数（会提示"请先确认"） */
+  draftCount: number
+  paidCount: number
+  notices: string[]
+}
+
+/** 工资发放分页查询参数（GET /api/sal/payment/page） */
+export interface SalPaymentPageParams {
+  current?: number
+  size?: number
+  employeeId?: number | null
+  month?: string | null
+  status?: number | null
+}
