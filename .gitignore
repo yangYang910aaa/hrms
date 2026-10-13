@@ -10,13 +10,17 @@ backend/uploads/
 *.log
 logs/
 
-### 临时脚本目录：只保留脚本本身，忽略日志与中间产物 ###
-.tmp_script/*.log
-.tmp_script/*.txt
+### 本地工作目录：只在本机保留，不进仓库（2026-10-13 用户要求） ###
+### .tmp_script/  临时脚本 + e2e 验证脚本 + 本地凭据模板
+### .workbuddy/   项目记忆与每日日志
+### 两个 .md     项目交接文档 / 设计规划书（含内部说明与凭据指引，不适合公开）
+.tmp_script/
+.workbuddy/
+交接文档.md
+制作规划书.md
 
-### 本地凭据 / 含明文口令的文件（推 GitHub 前必须排除，见 .local/credentials.md） ###
+### 本地凭据 / 含明文口令的文件（见 .local/credentials.md） ###
 .local/
-.tmp_script/_secrets.py
 backend/src/main/resources/application.yml
 backend/src/main/resources/application-local.yml
 
