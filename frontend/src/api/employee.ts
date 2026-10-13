@@ -3,7 +3,7 @@ import type { ApiResult, EmployeeDTO, EmployeePageParams, EmployeeVO, PageResult
 
 /**
  * 职工主档接口（/api/hr/employee）。
- * 页面文件在 views/hr/employee/index.vue（与后端 menu.component 字符串一致）。
+ * 页面文件在 views/hr/employee/Employee.vue（路径 + 文件名与后端 menu.component 字符串一致）。
  */
 
 /** 条件分页：name 模糊 / deptId / employType / status */

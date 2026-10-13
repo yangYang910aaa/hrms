@@ -24,7 +24,7 @@ import type {
 /**
  * 系统设置模块接口（/api/system/** 全部需要业务权限，与 /api/common/** 区分开）。
  * 页面在 src/views/system/**，文件名与后端 menu.component 一一对应
- *（如 system/dept/index → views/system/dept/index.vue）。
+ *（约定：**文件名与所在目录同名**，如 system/dept/Dept → views/system/dept/Dept.vue）。
  *
  * 只写页面真正用到的接口：没被页面调用的”顺手补上”等于死代码，不加。
  */

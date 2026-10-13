@@ -14,20 +14,20 @@ const staticRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/login/index.vue'),
+    component: () => import('@/views/login/Login.vue'),
     meta: { title: '登录', noLayout: true }
   },
   {
     // 布局骨架：侧边栏 + 顶栏 + 内容区。动态菜单与工作台都挂它的 children 下
     path: '/',
     name: 'Root',
-    component: () => import('@/layout/index.vue'),
+    component: () => import('@/layout/Layout.vue'),
     redirect: '/dashboard',
     children: [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@/views/dashboard/index.vue'),
+        component: () => import('@/views/dashboard/Dashboard.vue'),
         meta: { title: '工作台', icon: 'HomeFilled', affix: true }
       }
     ]

@@ -10,15 +10,16 @@ import type { MenuNode } from '@/types/api'
  * 1. **动态路由**：每个 C 菜单 addRoute 到布局（Root）的 children 下；
  * 2. **侧边栏数据**：原始菜单树（目录 M → 菜单 C 两层）存 state.menus，布局直接渲染。
  *
- * 组件映射规则：后端 menu.component 是 'hr/employee/index' 这种相对 views/ 的路径，
+ * 组件映射规则：后端 menu.component 是 'hr/employee/Employee' 这种相对 views/ 的路径
+ * （= 目录 + 页面文件名，**文件名与目录同名**，如 system/dept/Dept），
  * 用 import.meta.glob 懒加载 views 目录下的各个页面组件（相对路径 glob，key 稳定）对上去。
  * 页面还没写的菜单（后续批次）落到占位组件，显示"页面建设中"，不会白屏。
  */
 
-// 懒加载全量页面组件：key 形如 '../views/hr/employee/index.vue'
+// 懒加载全量页面组件：key 形如 '../views/hr/employee/Employee.vue'
 const viewModules = import.meta.glob('../views/**/*.vue')
 
-const Placeholder = (): Promise<Component> => import('@/views/common/placeholder.vue')
+const Placeholder = (): Promise<Component> => import('@/views/common/Placeholder.vue')
 
 /** 已注册的动态路由名，重置时逐条 removeRoute（否则换账号登录会残留上一个账号的菜单） */
 const registered: string[] = []
