@@ -11,7 +11,7 @@
             filterable
             style="width: 210px"
           >
-            <el-option v-for="e in employees" :key="e.id" :label="`${e.empNo} ${e.name}`" :value="e.id" />
+            <el-option v-for="e in employees" :key="e.id" :label="employeeLabel(e)" :value="e.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="类型">
@@ -95,7 +95,7 @@
                 <el-option
                   v-for="e in employees"
                   :key="e.id"
-                  :label="`${e.empNo} ${e.name}`"
+                  :label="employeeLabel(e)"
                   :value="e.id"
                 />
               </el-select>
@@ -157,7 +157,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createReward, deleteReward, rewardPage, updateReward } from '@/api/hr'
-import { empName, employees, loadEmployees } from '@/utils/lookup'
+import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { useDict } from '@/utils/dict'
 import { money } from '@/utils/format'
 import type { PageResult, RewardPunish, RewardPunishDTO, RewardPunishPageParams } from '@/types/api'

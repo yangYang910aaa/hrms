@@ -8,7 +8,7 @@
         </el-form-item>
         <el-form-item label="部门">
           <el-select v-model="query.deptId" placeholder="全部" clearable style="width: 180px">
-            <el-option v-for="d in deptFlat" :key="d.id" :label="d.name" :value="d.id" />
+            <el-option v-for="d in deptOptions" :key="d.id" :label="d.name" :value="d.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="在职状态">
@@ -187,7 +187,7 @@
           <el-col :span="12">
             <el-form-item label="部门">
               <el-select v-model="form.deptId" placeholder="请选择" clearable style="width: 100%">
-                <el-option v-for="d in deptFlat" :key="d.id" :label="d.name" :value="d.id" />
+                <el-option v-for="d in deptOptions" :key="d.id" :label="d.name" :value="d.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -292,11 +292,11 @@ import {
   employeePage,
   updateEmployee
 } from '@/api/employee'
-import { deptTree, salaryLevelOptions } from '@/api/common'
+import { salaryLevelOptions } from '@/api/common'
 import { useDict } from '@/utils/dict'
+import { deptOptions, loadDepts } from '@/utils/lookup'
 import { getToken } from '@/utils/auth'
 import type {
-  DeptNode,
   EmployeeDTO,
   EmployeePageParams,
   EmployeeVO,
@@ -314,23 +314,13 @@ const employTypeOptions = computed(() =>
   (dictMap.value.employ_type || []).map((o) => ({ label: o.label, value: Number(o.value) }))
 )
 
-const deptFlat = ref<{ id: number; name: string }[]>([])
 const levelOptions = ref<SalaryLevelOption[]>([])
 
 async function loadOptions() {
-  await loadDict()
-  const [dept, level] = await Promise.all([deptTree(), salaryLevelOptions()])
-  deptFlat.value = flattenDept(dept.data || [])
+  // 部门下拉走共享 lookup 层（与批次3 的 5 个页面同一份实现，别再各拍平一份）
+  await Promise.all([loadDict(), loadDepts()])
+  const level = await salaryLevelOptions()
   levelOptions.value = level.data || []
-}
-
-/** 部门树拍平供下拉用（前导用全角空格缩进 —— 普通空格会被 HTML 折叠掉） */
-function flattenDept(nodes: DeptNode[], depth = 0, out: { id: number; name: string }[] = []) {
-  for (const n of nodes) {
-    out.push({ id: n.id, name: '　'.repeat(depth) + (depth ? '└ ' : '') + n.deptName })
-    flattenDept(n.children || [], depth + 1, out)
-  }
-  return out
 }
 
 // ---------- 列表 ----------

@@ -163,7 +163,7 @@
                 <el-option
                   v-for="e in employees"
                   :key="e.id"
-                  :label="`${e.empNo} ${e.name}`"
+                  :label="employeeLabel(e)"
                   :value="e.id"
                 />
               </el-select>
@@ -184,12 +184,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createIntern, deleteIntern, internPage, updateIntern } from '@/api/hr'
-import { deptName, depts, empName, employees, loadDepts, loadEmployees } from '@/utils/lookup'
-import { flattenTree } from '@/utils/tree'
+import { deptName, deptOptions, empName, employeeLabel, employees, loadDepts, loadEmployees } from '@/utils/lookup'
 import type { Intern, InternDTO, InternPageParams, PageResult } from '@/types/api'
 
 // ---------- 状态枚举（不在 sys_dict 里，硬编码） ----------
@@ -208,9 +207,6 @@ function statusTag(status: number): 'success' | 'warning' | 'info' {
   if (status === 1) return 'warning'
   return 'info'
 }
-
-// ---------- 下拉数据 ----------
-const deptOptions = computed(() => flattenTree(depts.value, (n) => n.deptName))
 
 // ---------- 列表 ----------
 const loading = ref(false)

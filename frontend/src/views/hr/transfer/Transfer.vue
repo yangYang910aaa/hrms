@@ -11,7 +11,7 @@
             filterable
             style="width: 210px"
           >
-            <el-option v-for="e in employees" :key="e.id" :label="`${e.empNo} ${e.name}`" :value="e.id" />
+            <el-option v-for="e in employees" :key="e.id" :label="employeeLabel(e)" :value="e.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -90,7 +90,7 @@
                 <el-option
                   v-for="e in employees"
                   :key="e.id"
-                  :label="`${e.empNo} ${e.name}`"
+                  :label="employeeLabel(e)"
                   :value="e.id"
                 />
               </el-select>
@@ -158,17 +158,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createTransfer, deleteTransfer, transferPage, updateTransfer } from '@/api/hr'
-import { deptName, depts, empName, employees, loadDepts, loadEmployees } from '@/utils/lookup'
-import { flattenTree } from '@/utils/tree'
+import { deptName, deptOptions, empName, employeeLabel, employees, loadDepts, loadEmployees } from '@/utils/lookup'
 import type { PageResult, Transfer, TransferDTO, TransferPageParams } from '@/types/api'
-
-// ---------- 下拉数据 ----------
-/** 部门树拍平成下拉（缩进用全角空格，复用系统设置页的工具） */
-const deptOptions = computed(() => flattenTree(depts.value, (n) => n.deptName))
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -278,10 +273,16 @@ async function onSubmit() {
   } catch {
     return
   }
-  // 与后端 assertNotSame 同口径：前后部门与岗位完全相同则拒绝（前端先提示，省一次往返）
+  // 与后端 assertChanged 同口径的**预检**，但只求"不会误拦"：
+  // 后端比的是「解析后」的 from*（入参 → 本条已有值 → 主档当前值），而前端拿不到主档的部门/岗位
+  // （/common/employee-options 只回 id/empNo/name），所以 from* 留空时前端**无法预判** ——
+  // 那种情况交给后端拦（消息一样会弹）。反过来，若拿原始 null 去比，
+  // 会在"显式填了相同部门、两个岗位都留空"时误拦合法提交。
   if (
+    form.fromDeptId !== null &&
     form.fromDeptId === form.toDeptId &&
-    (form.fromPosition || '') === (form.toPosition || '')
+    (form.fromPosition || '').trim() !== '' &&
+    (form.fromPosition || '').trim() === (form.toPosition || '').trim()
   ) {
     ElMessage.warning('调动前后的部门与岗位完全相同，请检查')
     return

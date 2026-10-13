@@ -1,5 +1,6 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { courseOptions, deptTree, employeeOptions } from '@/api/common'
+import { flattenTree } from '@/utils/tree'
 import type { CourseOption, DeptNode, EmployeeOption } from '@/types/api'
 
 /**
@@ -23,7 +24,7 @@ export async function loadEmployees(): Promise<void> {
   employees.value = (await employeeOptions()).data || []
 }
 
-/** 部门树（下拉用 utils/tree 的 flattenTree 拍平；也供 deptId → 部门名） */
+/** 部门树（下拉用 `deptOptions`；也供 deptId → 部门名） */
 export async function loadDepts(): Promise<void> {
   depts.value = (await deptTree()).data || []
 }
@@ -33,20 +34,30 @@ export async function loadCourses(): Promise<void> {
   courses.value = (await courseOptions()).data || []
 }
 
+/**
+ * 部门下拉选项（树拍平成带缩进的平表）。
+ * 放在这里是因为**调动 / 实习生 / 内部培训 / 一线工培训 4 个页面都要用**，
+ * 各写一份 `computed(() => flattenTree(depts.value, …))` 就是 4 份重复。
+ */
+export const deptOptions = computed(() => flattenTree(depts.value, (n) => n.deptName))
+
 /** 查不到时的占位：空值给「—」，有 id 但列表里查不到给 `#id`（多半是数据不一致，别静默留白） */
 const EMPTY = '—'
 
-/** employeeId → 姓名 */
+/** employeeId → 姓名（列表列用） */
 export function empName(id: number | null | undefined): string {
   if (id === null || id === undefined) return EMPTY
   return employees.value.find((e) => e.id === id)?.name ?? `#${id}`
 }
 
-/** employeeId → 「工号 姓名」（新增表单的下拉选项用） */
-export function employeeLabel(id: number | null | undefined): string {
-  if (id === null || id === undefined) return EMPTY
-  const hit = employees.value.find((e) => e.id === id)
-  return hit ? `${hit.empNo} ${hit.name}` : `#${id}`
+/** 职工下拉的选项文案「工号 姓名」—— 9 个页面共 11 处用到，收成一处好统一改 */
+export function employeeLabel(emp: EmployeeOption): string {
+  return `${emp.empNo} ${emp.name}`
+}
+
+/** 课程下拉的选项文案「编号 课程名」 */
+export function courseLabel(course: CourseOption): string {
+  return `${course.courseNo} ${course.courseName}`
 }
 
 /** deptId → 部门名（部门树是嵌套的，递归找） */
@@ -63,10 +74,12 @@ export function deptName(id: number | null | undefined): string {
   return find(depts.value)?.deptName ?? `#${id}`
 }
 
-/** courseId → 课程名 */
+/** courseId → 课程名（列表列用） */
 export function courseName(id: number | null | undefined): string {
   if (id === null || id === undefined) return EMPTY
   return courses.value.find((c) => c.id === id)?.courseName ?? `#${id}`
 }
 
-export { courses, depts, employees }
+// 只导出页面真正用到的：部门树本身不导出（页面统一用拍平后的 `deptOptions`），
+// 避免又出现一个"看着有用、其实没人用"的导出。
+export { courses, employees }

@@ -5,7 +5,7 @@
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
         <el-form-item label="课程">
           <el-select v-model="query.courseId" placeholder="全部" clearable filterable style="width: 200px">
-            <el-option v-for="c in courses" :key="c.id" :label="`${c.courseNo} ${c.courseName}`" :value="c.id" />
+            <el-option v-for="c in courses" :key="c.id" :label="courseLabel(c)" :value="c.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="参训部门">
@@ -100,7 +100,7 @@
                 <el-option
                   v-for="c in courses"
                   :key="c.id"
-                  :label="`${c.courseNo} ${c.courseName}`"
+                  :label="courseLabel(c)"
                   :value="c.id"
                 />
               </el-select>
@@ -192,12 +192,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createFrontline, deleteFrontline, frontlinePage, updateFrontline } from '@/api/trn'
-import { courseName, courses, deptName, depts, loadCourses, loadDepts } from '@/utils/lookup'
-import { flattenTree } from '@/utils/tree'
+import { courseLabel, courseName, courses, deptName, deptOptions, loadCourses, loadDepts } from '@/utils/lookup'
 import type { PageResult, TrnFrontline, TrnFrontlineDTO, TrnFrontlinePageParams } from '@/types/api'
 
 // ---------- 枚举（不在 sys_dict 里，硬编码） ----------
@@ -216,9 +215,6 @@ function statusTag(status: number): 'success' | 'warning' | 'info' {
   if (status === 1) return 'warning'
   return 'info'
 }
-
-// ---------- 下拉数据 ----------
-const deptOptions = computed(() => flattenTree(depts.value, (n) => n.deptName))
 
 // ---------- 列表 ----------
 const loading = ref(false)
