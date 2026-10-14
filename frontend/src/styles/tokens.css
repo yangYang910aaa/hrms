@@ -74,6 +74,7 @@
   --hr-font-lg: 16px;
   --hr-font-xl: 20px;
   --hr-font-2xl: 28px;
+  --hr-font-3xl: 34px;           /* 登录页品牌主标题等特大字号 */
 
   /* ---------------- 外壳尺寸（与 layout 保持一致）---------------- */
   --hr-sidebar-width: 232px;
