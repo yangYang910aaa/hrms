@@ -279,7 +279,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
   EMPLOYEE_PHOTO_URL,
@@ -289,6 +289,7 @@ import {
   updateEmployee
 } from '@/api/employee'
 import { useDict } from '@/utils/dict'
+import { confirmDelete } from '@/utils/confirm'
 import { deptOptions, loadDepts, loadSalLevels, salLevelLabel, salLevels } from '@/utils/lookup'
 import { getToken } from '@/utils/auth'
 import type { EmployeeDTO, EmployeePageParams, EmployeeVO, PageResult } from '@/types/api'
@@ -362,9 +363,7 @@ function employTypeTag(employType: number | null): 'success' | 'warning' | 'info
 // ---------- 删除 ----------
 async function onDelete(row: EmployeeVO) {
   try {
-    await ElMessageBox.confirm(`确认删除职工【${row.name}】？删除后工号可重新录入。`, '提示', {
-      type: 'warning'
-    })
+    await confirmDelete(`职工【${row.name}】`, '删除后工号可重新录入。')
   } catch {
     return // 用户点了取消：confirm 取消是抛异常，不接住就是一条未处理的 rejection
   }
