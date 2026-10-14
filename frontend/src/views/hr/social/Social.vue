@@ -1,5 +1,5 @@
 <template>
-  <div class="hr-social-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -32,7 +32,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'hr:social:add'" type="primary" :icon="Plus" @click="openCreate">
           新增社保
@@ -40,7 +40,7 @@
         <span class="tip">同一职工同一月只能登记一条（唯一键）；比例填小数，缴纳额留空由系统按「基数 × 比例」计算</span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="职工" min-width="120">
           <template #default="{ row }">{{ empName(row.employeeId) }}</template>
         </el-table-column>
@@ -61,14 +61,20 @@
           <template #default="{ row }">{{ money(row.personalAmount) }}</template>
         </el-table-column>
         <el-table-column label="所属月份" prop="month" width="100" />
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'hr:social:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button v-permission="'hr:social:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'hr:social:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'hr:social:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -212,7 +218,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createSocial, deleteSocial, socialPage, updateSocial } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { money, percent } from '@/utils/format'
@@ -362,34 +368,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip,
-.field-tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.field-tip {
-  line-height: 1.4;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>

@@ -57,7 +57,7 @@
         <el-table-column label="学历" min-width="90">
           <template #default="{ row }">{{ label('edu_level', row.eduLevel) }}</template>
         </el-table-column>
-        <el-table-column label="职位" prop="position" min-width="100" show-overflow-tooltip />
+        <el-table-column label="职位" prop="position" min-width="110" show-overflow-tooltip />
         <el-table-column label="入职日期" prop="hireDate" width="120" />
         <el-table-column label="在职状态" width="90">
           <template #default="{ row }">
@@ -76,24 +76,20 @@
         <el-table-column label="年龄" width="70">
           <template #default="{ row }">{{ row.age ?? '—' }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="140" fixed="right">
+        <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-permission="'hr:employee:edit'"
-              link
-              type="primary"
-              @click="openEdit(row)"
-            >
-              修改
-            </el-button>
-            <el-button
-              v-permission="'hr:employee:remove'"
-              link
-              type="danger"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'hr:employee:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'hr:employee:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -284,7 +280,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
   EMPLOYEE_PHOTO_URL,
   createEmployee,

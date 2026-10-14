@@ -1,5 +1,5 @@
 <template>
-  <div class="hr-reward-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -27,7 +27,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'hr:reward:add'" type="primary" :icon="Plus" @click="openCreate">
           新增奖罚
@@ -35,7 +35,7 @@
         <span class="tip">奖罚按「发生日期」归入当月的工资档（奖励记 +、处罚记 −）</span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="职工" min-width="120">
           <template #default="{ row }">{{ empName(row.employeeId) }}</template>
         </el-table-column>
@@ -52,14 +52,20 @@
         </el-table-column>
         <el-table-column label="发生日期" prop="happenDate" width="120" />
         <el-table-column label="经办人" prop="operator" width="110" />
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'hr:reward:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button v-permission="'hr:reward:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'hr:reward:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'hr:reward:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -155,7 +161,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createReward, deleteReward, rewardPage, updateReward } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { useDict } from '@/utils/dict'
@@ -307,29 +313,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>
