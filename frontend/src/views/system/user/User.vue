@@ -1,5 +1,5 @@
 <template>
-  <div class="user-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -39,7 +39,7 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'system:user:add'" type="primary" :icon="Plus" @click="openCreate()">
           新增用户
@@ -51,7 +51,7 @@
         ⚠️ 下限不能贴内容宽：EP 的 .el-table .cell 自身还有 ~25px 横向内边距，写太窄会折行
         （实测把姓名/操作按钮折成两行）。下面这些值是「内容 + 25」量出来的不折行下限。
       -->
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="登录账号" min-width="110">
           <template #default="{ row }">
             {{ row.username }}
