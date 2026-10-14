@@ -60,11 +60,11 @@
         </el-table-column>
         <el-table-column label="姓名" prop="realName" min-width="100" />
         <!-- 后端只回 deptId，部门名靠前端用部门树翻译 -->
-        <el-table-column label="部门" min-width="100" show-overflow-tooltip>
+        <el-table-column label="部门" min-width="94" show-overflow-tooltip>
           <template #default="{ row }">{{ deptName(row.deptId) }}</template>
         </el-table-column>
         <el-table-column label="手机" prop="phone" min-width="112" />
-        <el-table-column label="邮箱" prop="email" min-width="130" show-overflow-tooltip />
+        <el-table-column label="邮箱" prop="email" min-width="120" show-overflow-tooltip />
         <!--
           ⚠️ 这一列必须是「固定 width」且 ≥148：
           开关本体带 active-text/inactive-text 实测 116px（停用 28 + 10 + 开关 40 + 10 + 正常 28）；
@@ -90,30 +90,49 @@
         <el-table-column label="最后登录" min-width="170">
           <template #default="{ row }">{{ formatTime(row.lastLoginTime) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="260" fixed="right">
+        <!--
+          操作列：图标化 + tooltip（阶段 3 目标「操作列图标化」）。
+          文字按钮 4 个实测占 239px，图标化后只剩 104px（4×20 按钮 + 3×8 间隙）→ 列宽 136
+          （104 + 单元格 25），省下 124px，右侧列因此不再被 fixed 列压住。
+          ⚠️ `v-permission` 是**从 DOM 移除**元素，所以不能把带指令的按钮直接放进 `el-tooltip`
+          （会留下一个空触发器）→ 用 `<span v-permission>` 把整个 tooltip 包住。
+        -->
+        <el-table-column label="操作" width="136" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'system:user:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button
-              v-permission="'system:user:assign'"
-              link
-              type="primary"
-              @click="openAssign(row)"
-            >
-              分配角色
-            </el-button>
-            <el-button
-              v-permission="'system:user:resetPwd'"
-              link
-              type="primary"
-              @click="openResetPwd(row)"
-            >
-              重置密码
-            </el-button>
-            <el-button v-permission="'system:user:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'system:user:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:user:assign'">
+                <el-tooltip content="分配角色" placement="top" :show-after="150">
+                  <el-button
+                    link
+                    type="primary"
+                    :icon="UserFilled"
+                    aria-label="分配角色"
+                    @click="openAssign(row)"
+                  />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:user:resetPwd'">
+                <el-tooltip content="重置密码" placement="top" :show-after="150">
+                  <el-button
+                    link
+                    type="primary"
+                    :icon="Key"
+                    aria-label="重置密码"
+                    @click="openResetPwd(row)"
+                  />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:user:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -284,7 +303,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Key, Plus, Refresh, Search, UserFilled } from '@element-plus/icons-vue'
 import {
   assignUserRoles,
   changeUserStatus,
@@ -588,6 +607,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 操作列的图标按钮组（图标化后靠 gap 排布，不再依赖 el-button 之间的 margin） */
+.op-btns {
+  display: flex;
+  align-items: center;
+  gap: var(--hr-space-2);
+}
+
 .search-card {
   margin-bottom: 12px;
 }
