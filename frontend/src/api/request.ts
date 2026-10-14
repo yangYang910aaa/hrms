@@ -40,9 +40,19 @@ service.interceptors.response.use(
     if (body && body.code === 401) {
       removeToken()
       const current = router.currentRoute.value
-      if (!current.path.startsWith('/login')) {
+      const onLoginPage = current.path.startsWith('/login')
+      // /auth/me 是路由守卫用来"探活"token 的。它 401 说明是**启动时带了失效 token**
+      // （后端重启 / Redis 被清空 / 账号被停用 / 已被登出），用户什么都没做，
+      // 这时候弹红条只会让人以为"我没操作怎么就报错了"。
+      const isProbe = String(res.config?.url || '').includes('/auth/me')
+      if (!onLoginPage && !isProbe) {
+        // 会话是在用户操作过程中过期的，才给一句温和提示（warning 而非 error）
+        ElMessage.warning('登录已过期，请重新登录')
+      }
+      if (!onLoginPage) {
         router.push({ path: '/login', query: { redirect: current.fullPath } })
       }
+      return Promise.reject(new Error((body && body.msg) || '登录已过期'))
     }
     ElMessage.error((body && body.msg) || '操作失败')
     return Promise.reject(new Error((body && body.msg) || '操作失败'))
