@@ -1,5 +1,5 @@
 <template>
-  <div class="sal-level-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -20,7 +20,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'sal:level:add'" type="primary" :icon="Plus" @click="openCreate">
           新增级别
@@ -30,21 +30,27 @@
         </span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="级别编号" prop="levelNo" width="120" />
         <el-table-column label="级别名称" prop="levelName" min-width="160" show-overflow-tooltip />
         <el-table-column label="基本工资" width="130" align="right">
           <template #default="{ row }">{{ money(row.baseSalary) }}</template>
         </el-table-column>
         <el-table-column label="备注" prop="remark" min-width="160" show-overflow-tooltip />
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'sal:level:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button v-permission="'sal:level:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'sal:level:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'sal:level:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -116,7 +122,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createLevel, deleteLevel, levelPage, updateLevel } from '@/api/sal'
 import { money } from '@/utils/format'
 import type { PageResult, SalLevel, SalLevelDTO, SalLevelPageParams } from '@/types/api'
@@ -244,29 +250,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>

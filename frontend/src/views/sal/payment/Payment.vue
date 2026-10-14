@@ -1,5 +1,5 @@
 <template>
-  <div class="sal-payment-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -32,7 +32,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button
           v-permission="'sal:payment:add'"
@@ -47,56 +47,46 @@
         </span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
-        <el-table-column label="职工" width="150" show-overflow-tooltip>
+      <el-table :data="records" v-loading="loading" stripe>
+        <el-table-column label="职工" width="130" show-overflow-tooltip>
           <template #default="{ row }">{{ row.empNo }} {{ row.employeeName }}</template>
         </el-table-column>
         <el-table-column label="月份" prop="month" width="100" />
-        <el-table-column label="应发金额" width="130" align="right">
+        <el-table-column label="应发金额" width="110" align="right">
           <template #default="{ row }">
             <strong>{{ money(row.netSalary) }}</strong>
           </template>
         </el-table-column>
-        <el-table-column label="发放方式" prop="payWay" width="120" />
-        <el-table-column label="银行账号" prop="bankAccount" min-width="170" show-overflow-tooltip />
-        <el-table-column label="发放日期" prop="payDate" width="120" />
-        <el-table-column label="状态" width="92">
+        <el-table-column label="发放方式" prop="payWay" width="110" />
+        <el-table-column label="银行账号" prop="bankAccount" min-width="150" show-overflow-tooltip />
+        <el-table-column label="发放日期" prop="payDate" width="112" />
+        <el-table-column label="状态" width="88">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '已发放' : '未发放' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="remark" min-width="140" show-overflow-tooltip />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="备注" prop="remark" min-width="100" show-overflow-tooltip />
+        <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:payment:pay'"
-              link
-              type="success"
-              @click="onPay(row)"
-            >
-              发放
-            </el-button>
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:payment:edit'"
-              link
-              type="primary"
-              @click="openEdit(row)"
-            >
-              修改
-            </el-button>
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:payment:remove'"
-              link
-              type="danger"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-if="row.status === 0" v-permission="'sal:payment:pay'">
+                <el-tooltip content="发放" placement="top" :show-after="150">
+                  <el-button link type="success" :icon="Money" aria-label="发放" @click="onPay(row)" />
+                </el-tooltip>
+              </span>
+              <span v-if="row.status === 0" v-permission="'sal:payment:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-if="row.status === 0" v-permission="'sal:payment:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -214,7 +204,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Money, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { deletePayment, generatePayment, payPayment, paymentPage, updatePayment } from '@/api/sal'
 import { employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { money } from '@/utils/format'
@@ -390,54 +380,28 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip,
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。只留本页特有的。 */
 .field-tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.field-tip {
-  line-height: 1.5;
   margin-bottom: 4px;
 }
 
 .gen-result {
-  margin-top: 4px;
+  margin-top: var(--hr-space-1);
 }
 
 .summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--hr-space-2);
+  margin-bottom: var(--hr-space-2);
 }
 
 .notices {
-  margin: 0 0 8px;
+  margin: 0 0 var(--hr-space-2);
   padding-left: 18px;
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-placeholder);
   line-height: 1.6;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="sal-archive-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -31,7 +31,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button
           v-permission="'sal:archive:calc'"
@@ -47,78 +47,68 @@
         </span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
-        <el-table-column label="职工" width="140" fixed="left" show-overflow-tooltip>
+      <el-table :data="records" v-loading="loading" stripe>
+        <el-table-column label="职工" width="110" fixed="left" show-overflow-tooltip>
           <template #default="{ row }">{{ row.empNo }} {{ row.employeeName }}</template>
         </el-table-column>
-        <el-table-column label="月份" prop="month" width="90" fixed="left" />
-        <el-table-column label="级别" prop="levelName" width="120" show-overflow-tooltip />
-        <el-table-column label="基本工资" width="105" align="right">
+        <el-table-column label="月份" prop="month" width="76" fixed="left" />
+        <el-table-column label="级别" prop="levelName" width="96" show-overflow-tooltip />
+        <el-table-column label="基本工资" width="92" align="right">
           <template #default="{ row }">{{ money(row.baseSalary) }}</template>
         </el-table-column>
-        <el-table-column label="加班" width="95" align="right">
+        <el-table-column label="加班" width="88" align="right">
           <template #default="{ row }">{{ money(row.overtimeAmount) }}</template>
         </el-table-column>
-        <el-table-column label="计件" width="95" align="right">
+        <el-table-column label="计件" width="88" align="right">
           <template #default="{ row }">{{ money(row.pieceAmount) }}</template>
         </el-table-column>
-        <el-table-column label="计时" width="95" align="right">
+        <el-table-column label="计时" width="88" align="right">
           <template #default="{ row }">{{ money(row.timeAmount) }}</template>
         </el-table-column>
-        <el-table-column label="奖罚" width="95" align="right">
+        <el-table-column label="奖罚" width="88" align="right">
           <template #default="{ row }">{{ money(row.rewardAmount) }}</template>
         </el-table-column>
-        <el-table-column label="社保" width="95" align="right">
+        <el-table-column label="社保" width="88" align="right">
           <template #default="{ row }">{{ money(row.socialSecurity) }}</template>
         </el-table-column>
-        <el-table-column label="水电" width="95" align="right">
+        <el-table-column label="水电" width="88" align="right">
           <template #default="{ row }">{{ money(row.utilityFee) }}</template>
         </el-table-column>
-        <el-table-column label="其他扣款" width="100" align="right">
+        <el-table-column label="其他扣款" width="92" align="right">
           <template #default="{ row }">{{ money(row.deductAmount) }}</template>
         </el-table-column>
-        <el-table-column label="个税" width="95" align="right">
+        <el-table-column label="个税" width="88" align="right">
           <template #default="{ row }">{{ money(row.tax) }}</template>
         </el-table-column>
-        <el-table-column label="实发" width="115" align="right">
+        <el-table-column label="实发" width="100" align="right">
           <template #default="{ row }">
             <strong>{{ money(row.netSalary) }}</strong>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="92">
+        <el-table-column label="状态" width="88">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:archive:confirm'"
-              link
-              type="success"
-              @click="onConfirm(row)"
-            >
-              确认
-            </el-button>
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:archive:edit'"
-              link
-              type="primary"
-              @click="openEdit(row)"
-            >
-              改扣款
-            </el-button>
-            <el-button
-              v-if="row.status === 0"
-              v-permission="'sal:archive:remove'"
-              link
-              type="danger"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-if="row.status === 0" v-permission="'sal:archive:confirm'">
+                <el-tooltip content="确认" placement="top" :show-after="150">
+                  <el-button link type="success" :icon="CircleCheck" aria-label="确认" @click="onConfirm(row)" />
+                </el-tooltip>
+              </span>
+              <span v-if="row.status === 0" v-permission="'sal:archive:edit'">
+                <el-tooltip content="改扣款" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="改扣款" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-if="row.status === 0" v-permission="'sal:archive:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -189,7 +179,7 @@
         <ul v-if="calcResult.notices.length" class="notices">
           <li v-for="(n, i) in calcResult.notices" :key="i">{{ n }}</li>
         </ul>
-        <el-table :data="calcResult.items" border size="small" max-height="300" style="margin-top: 8px">
+        <el-table :data="calcResult.items" stripe size="small" max-height="300" style="margin-top: 8px">
           <el-table-column label="职工" width="150" show-overflow-tooltip>
             <template #default="{ row }">{{ row.empNo }} {{ row.employeeName }}</template>
           </el-table-column>
@@ -271,7 +261,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
-import { MagicStick, Refresh, Search } from '@element-plus/icons-vue'
+import { CircleCheck, Delete, Edit, MagicStick, Refresh, Search } from '@element-plus/icons-vue'
 import { archivePage, batchCalcArchive, confirmArchive, deleteArchive, updateArchive } from '@/api/sal'
 import { employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { money } from '@/utils/format'
@@ -474,53 +464,27 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip,
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。只留本页特有的。 */
 .field-tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.field-tip {
-  line-height: 1.5;
   margin-bottom: 4px;
 }
 
 .calc-result {
-  margin-top: 4px;
+  margin-top: var(--hr-space-1);
 }
 
 .summary {
   display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--hr-space-2);
+  margin-bottom: var(--hr-space-2);
 }
 
 .notices {
-  margin: 0 0 8px;
+  margin: 0 0 var(--hr-space-2);
   padding-left: 18px;
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-placeholder);
   line-height: 1.6;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
 }
 </style>
