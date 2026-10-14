@@ -1,5 +1,5 @@
 <template>
-  <div class="query-notice-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -30,7 +30,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'query:notice:add'" type="primary" :icon="Plus" @click="openCreate">
           新增通知
@@ -38,7 +38,7 @@
         <span class="tip">状态流转：草稿 → 发布 → 已发布 → 下线 → 已下线；已发布不可直接改/删</span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="标题" prop="title" min-width="220" show-overflow-tooltip />
         <el-table-column label="类型" width="90">
           <template #default="{ row }">
@@ -59,46 +59,81 @@
         <el-table-column label="打印次数" width="90" align="right">
           <template #default="{ row }">{{ row.printCount ?? 0 }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="270" fixed="right">
+        <!--
+          操作列图标化（阶段 3）。5 个动作实测 ≈132px，列宽 160（= 内容 + 25px 余量）。
+          ⚠️ 两点约定（与系统设置/人事/薪酬各页一致，见交接文档 §9）：
+            ① `v-permission` 是**从 DOM 移除**元素 → 用外层 `<span>` 包住整个 tooltip，否则留下空触发器；
+            ② el-tooltip 的触发元素不能是 `disabled` 的原生 button（不派发鼠标事件 → tooltip 不弹），
+               所以 tooltip 里再套一层 `<span class="op-icon">`（本页「修改/删除」在已发布行是禁用的）。
+        -->
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openDetail(row)">查看</el-button>
-            <el-button
-              v-if="row.status !== 1"
-              v-permission="'query:notice:publish'"
-              link
-              type="success"
-              @click="onPublish(row)"
-            >
-              发布
-            </el-button>
-            <el-button
-              v-else
-              v-permission="'query:notice:publish'"
-              link
-              type="warning"
-              @click="onOffline(row)"
-            >
-              下线
-            </el-button>
-            <el-button
-              v-permission="'query:notice:edit'"
-              link
-              type="primary"
-              :disabled="row.status === 1"
-              @click="openEdit(row)"
-            >
-              修改
-            </el-button>
-            <el-button
-              v-permission="'query:notice:remove'"
-              link
-              type="danger"
-              :disabled="row.status === 1"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
-            <el-button link @click="onPrint(row)">打印</el-button>
+            <div class="op-btns">
+              <el-tooltip content="查看" placement="top" :show-after="150">
+                <span class="op-icon">
+                  <el-button link type="primary" :icon="View" aria-label="查看" @click="openDetail(row)" />
+                </span>
+              </el-tooltip>
+              <span v-if="row.status !== 1" v-permission="'query:notice:publish'">
+                <el-tooltip content="发布" placement="top" :show-after="150">
+                  <span class="op-icon">
+                    <el-button
+                      link
+                      type="success"
+                      :icon="CircleCheck"
+                      aria-label="发布"
+                      @click="onPublish(row)"
+                    />
+                  </span>
+                </el-tooltip>
+              </span>
+              <span v-else v-permission="'query:notice:publish'">
+                <el-tooltip content="下线" placement="top" :show-after="150">
+                  <span class="op-icon">
+                    <el-button
+                      link
+                      type="warning"
+                      :icon="SwitchButton"
+                      aria-label="下线"
+                      @click="onOffline(row)"
+                    />
+                  </span>
+                </el-tooltip>
+              </span>
+              <span v-permission="'query:notice:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <span class="op-icon">
+                    <el-button
+                      link
+                      type="primary"
+                      :icon="Edit"
+                      aria-label="修改"
+                      :disabled="row.status === 1"
+                      @click="openEdit(row)"
+                    />
+                  </span>
+                </el-tooltip>
+              </span>
+              <span v-permission="'query:notice:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <span class="op-icon">
+                    <el-button
+                      link
+                      type="danger"
+                      :icon="Delete"
+                      aria-label="删除"
+                      :disabled="row.status === 1"
+                      @click="onDelete(row)"
+                    />
+                  </span>
+                </el-tooltip>
+              </span>
+              <el-tooltip content="打印" placement="top" :show-after="150">
+                <span class="op-icon">
+                  <el-button link :icon="Printer" aria-label="打印" @click="onPrint(row)" />
+                </span>
+              </el-tooltip>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -187,7 +222,17 @@
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import {
+  CircleCheck,
+  Delete,
+  Edit,
+  Printer,
+  Plus,
+  Refresh,
+  Search,
+  SwitchButton,
+  View
+} from '@element-plus/icons-vue'
 import {
   createNotice,
   deleteNotice,
@@ -417,32 +462,7 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
+/* 骨架类（.search-card/.toolbar/.tip/.pagination）已全局，本页只留特有样式 */
 /* 详情弹窗排版 */
 .notice-title {
   margin: 0 0 12px;
@@ -455,10 +475,10 @@ onMounted(load)
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-secondary);
   padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--hr-border);
 }
 
 .notice-content {
@@ -471,8 +491,8 @@ onMounted(load)
 
 .notice-remark {
   margin-top: 12px;
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-secondary);
 }
 
 /* 打印区平时不显示，打印时才铺开 */

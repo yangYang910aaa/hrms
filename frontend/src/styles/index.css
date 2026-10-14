@@ -300,6 +300,17 @@ a {
   gap: var(--hr-space-2);
 }
 
+/**
+ * 图标按钮的包裹层（配合 `.op-btns`）。
+ * ⚠️ el-tooltip 的触发元素需要能派发鼠标事件，而 `disabled` 的原生 `<button>` **不派发**
+ *   （tooltip 永远不弹）→ 禁用状态的图标按钮要在 tooltip 内再套一层本类。
+ * 另外 `<el-button link>` 是 inline-block，包一层 inline-flex 才能保证与相邻图标对齐、宽度稳定。
+ */
+.op-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
 /** 表单字段下方的补充说明 */
 .field-tip {
   font-size: var(--hr-font-xs);

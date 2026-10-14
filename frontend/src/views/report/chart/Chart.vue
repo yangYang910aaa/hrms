@@ -1,7 +1,7 @@
 <template>
-  <div class="report-chart-page">
+  <div class="page-container">
     <!-- 顶部：KPI + 年份切换 -->
-    <el-card shadow="never" class="head-card">
+    <el-card shadow="never">
       <div class="head">
         <div class="kpi">
           <span class="kpi-label">在职人数</span>
@@ -239,10 +239,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.head-card {
-  margin-bottom: 12px;
-}
-
+/* 本页特有样式；骨架类（.page-container / .tip）与卡片间距已全局，不再重复 */
 .head {
   display: flex;
   align-items: center;
@@ -257,23 +254,18 @@ onBeforeUnmount(() => {
 }
 
 .kpi-label {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-secondary);
 }
 
 .kpi-value {
   font-size: 22px;
   font-weight: 600;
-  color: #303133;
+  color: var(--hr-text-primary);
 }
 
 .spacer {
   flex: 1;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
 }
 
 .grid {

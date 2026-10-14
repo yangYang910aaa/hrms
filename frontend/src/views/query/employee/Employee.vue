@@ -1,5 +1,5 @@
 <template>
-  <div class="query-employee-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -36,44 +36,56 @@
     </el-card>
 
     <!-- 结果列表（只读） -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <span class="tip">公共查询为只读视图：职工资料的新增/修改请在「人事管理 → 职工管理」进行</span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
-        <el-table-column label="工号" prop="empNo" width="110" />
-        <el-table-column label="姓名" prop="name" width="110" show-overflow-tooltip />
-        <el-table-column label="性别" width="70">
+      <el-table :data="records" v-loading="loading" stripe>
+        <!--
+          列宽口径「列宽 = 内容 + 25px」（EP 的 .el-table .cell 自带 padding: 0 12px + 1px 边框）。
+          12 列原来合计 ≈1330px > 1440 下容器可用宽 → 横向溢出、fixed 操作列压住「状态」。
+          姓名/部门/岗位/学历 用 min-width（下限，宽屏 EP 会把富余摊给它们，不会右侧留白）。
+        -->
+        <el-table-column label="工号" prop="empNo" width="90" />
+        <el-table-column label="姓名" prop="name" min-width="96" show-overflow-tooltip />
+        <el-table-column label="性别" width="64">
           <template #default="{ row }">{{ label('sex', row.gender) }}</template>
         </el-table-column>
-        <el-table-column label="年龄" width="70" align="right">
+        <el-table-column label="年龄" width="56" align="right">
           <template #default="{ row }">{{ row.age ?? '—' }}</template>
         </el-table-column>
-        <el-table-column label="部门" prop="deptName" width="120" show-overflow-tooltip />
-        <el-table-column label="岗位" prop="position" width="120" show-overflow-tooltip />
-        <el-table-column label="学历" width="110">
+        <el-table-column label="部门" prop="deptName" min-width="104" show-overflow-tooltip />
+        <el-table-column label="岗位" prop="position" min-width="96" show-overflow-tooltip />
+        <el-table-column label="学历" min-width="96" show-overflow-tooltip>
           <template #default="{ row }">{{ label('edu_level', row.eduLevel) }}</template>
         </el-table-column>
-        <el-table-column label="入职日期" prop="hireDate" width="120" />
-        <el-table-column label="在职状态" width="100">
+        <el-table-column label="入职日期" prop="hireDate" width="108" />
+        <el-table-column label="在职状态" width="84">
           <template #default="{ row }">
             <el-tag :type="row.employType === 3 ? 'info' : 'success'" size="small">
               {{ label('employ_type', row.employType) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="手机" prop="phone" width="130" />
-        <el-table-column label="状态" width="80">
+        <el-table-column label="手机" prop="phone" width="116" />
+        <el-table-column label="状态" width="76">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '正常' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="80" fixed="right">
+        <!-- 操作列图标化（阶段 3）：单动作「查看」，列宽 56（内容 20 + 单元格 25 + 余量） -->
+        <el-table-column label="操作" width="56" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openDetail(row)">查看</el-button>
+            <div class="op-btns">
+              <el-tooltip content="查看" placement="top" :show-after="150">
+                <span class="op-icon">
+                  <el-button link type="primary" :icon="View" aria-label="查看" @click="openDetail(row)" />
+                </span>
+              </el-tooltip>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -124,7 +136,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Refresh, Search } from '@element-plus/icons-vue'
+import { Refresh, Search, View } from '@element-plus/icons-vue'
 import { queryEmployeeDetail, queryEmployeePage } from '@/api/query'
 import { deptOptions, loadDepts } from '@/utils/lookup'
 import { useDict } from '@/utils/dict'
@@ -199,26 +211,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+/* 本页骨架类已全局（.page-container/.search-card/.toolbar/.tip/.pagination），无特有样式 */
 </style>

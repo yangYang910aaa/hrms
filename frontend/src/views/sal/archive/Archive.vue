@@ -52,6 +52,22 @@
           <template #default="{ row }">{{ row.empNo }} {{ row.employeeName }}</template>
         </el-table-column>
         <el-table-column label="月份" prop="month" width="76" fixed="left" />
+        <!--
+          方案 A（2026-10-14 用户拍板）：本表 15 列、其中 13 个金额列，列宽下限合计 ≈1386px，
+          1440 视口装不下。把「实发 / 状态」与「职工 / 月份」一样固定到左侧常显，
+          中间明细列横向滚动查看。
+          ⚠️ 必须 fixed：fixed="right" 的操作列是 position:sticky，不固定就会被它盖住。
+        -->
+        <el-table-column label="实发" width="100" align="right" fixed="left">
+          <template #default="{ row }">
+            <strong>{{ money(row.netSalary) }}</strong>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="88" fixed="left">
+          <template #default="{ row }">
+            <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="级别" prop="levelName" width="96" show-overflow-tooltip />
         <el-table-column label="基本工资" width="92" align="right">
           <template #default="{ row }">{{ money(row.baseSalary) }}</template>
@@ -79,16 +95,6 @@
         </el-table-column>
         <el-table-column label="个税" width="88" align="right">
           <template #default="{ row }">{{ money(row.tax) }}</template>
-        </el-table-column>
-        <el-table-column label="实发" width="100" align="right">
-          <template #default="{ row }">
-            <strong>{{ money(row.netSalary) }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="88">
-          <template #default="{ row }">
-            <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
-          </template>
         </el-table-column>
         <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
