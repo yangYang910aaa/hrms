@@ -208,6 +208,15 @@ a {
   padding-top: 2px;
 }
 
+/**
+ * el-switch 的行内文字标签（active-text / inactive-text）不要折行。
+ * ⚠️ EP 默认是 `white-space: normal`：标签宽度**恰好等于 2 个汉字**（28px）时会被挤成
+ * 上下两行（实测「停用」「正常」竖排，看着像被截断）。加 nowrap 才是正常的一行。
+ */
+.el-switch__label {
+  white-space: nowrap;
+}
+
 /* 分页：下拉/跳转与页码按键对齐（EP 默认有轻微错位） */
 .el-pagination {
   --el-pagination-button-height: 30px;

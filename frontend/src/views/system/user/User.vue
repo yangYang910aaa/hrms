@@ -46,21 +46,33 @@
         </el-button>
       </div>
 
+      <!--
+        列宽口径：min-width 是「下限」，1440 宽下 EP 会把富余空间摊给这些列，所以下限收紧不会让宽屏变挤。
+        ⚠️ 下限不能贴内容宽：EP 的 .el-table .cell 自身还有 ~25px 横向内边距，写太窄会折行
+        （实测把姓名/操作按钮折成两行）。下面这些值是「内容 + 25」量出来的不折行下限。
+      -->
       <el-table :data="records" v-loading="loading" border>
-        <el-table-column label="登录账号" min-width="150">
+        <el-table-column label="登录账号" min-width="110">
           <template #default="{ row }">
             {{ row.username }}
             <el-tag v-if="isSelf(row)" size="small" type="warning">本人</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="姓名" prop="realName" min-width="110" />
+        <el-table-column label="姓名" prop="realName" min-width="100" />
         <!-- 后端只回 deptId，部门名靠前端用部门树翻译 -->
-        <el-table-column label="部门" min-width="130" show-overflow-tooltip>
+        <el-table-column label="部门" min-width="100" show-overflow-tooltip>
           <template #default="{ row }">{{ deptName(row.deptId) }}</template>
         </el-table-column>
-        <el-table-column label="手机" prop="phone" min-width="120" />
-        <el-table-column label="邮箱" prop="email" min-width="180" show-overflow-tooltip />
-        <el-table-column label="状态" width="90">
+        <el-table-column label="手机" prop="phone" min-width="112" />
+        <el-table-column label="邮箱" prop="email" min-width="130" show-overflow-tooltip />
+        <!--
+          ⚠️ 这一列必须是「固定 width」且 ≥148：
+          开关本体带 active-text/inactive-text 实测 116px（停用 28 + 10 + 开关 40 + 10 + 正常 28）；
+          而 EP 的 .el-table .cell 自带 padding: 0 12px（左右 24px）+ 1px 边框 → 列宽 = 内容 + 25。
+          之前给 90px 时可用宽只有 65px：两个文字标签被挤成竖排、开关溢出单元格；
+          给 140px 时可用 115px，比 116px 少 1px → 单元格判溢出，末尾画出省略号「正常…」。
+        -->
+        <el-table-column label="状态" width="148">
           <template #default="{ row }">
             <!--
               before-change：先问后端再翻转，失败就保持原状。
@@ -75,7 +87,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="最后登录" min-width="150">
+        <el-table-column label="最后登录" min-width="170">
           <template #default="{ row }">{{ formatTime(row.lastLoginTime) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="260" fixed="right">
