@@ -1,5 +1,5 @@
 <template>
-  <div class="social-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -25,7 +25,7 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button
           v-permission="'system:social-rate:add'"
@@ -38,7 +38,7 @@
         <span class="tip">比例以小数存储：0.16 = 16%（工资计算直接取这两个值）</span>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="险种名称" prop="rateName" min-width="130" />
         <el-table-column label="编码" prop="rateCode" width="90" />
         <el-table-column label="单位比例" width="132" align="right">
@@ -47,15 +47,15 @@
         <el-table-column label="个人比例" width="132" align="right">
           <template #default="{ row }">{{ rate(row.personalRate) }}</template>
         </el-table-column>
-        <el-table-column label="基数下限" width="120" align="right">
+        <el-table-column label="基数下限" width="92" align="right">
           <template #default="{ row }">{{ money(row.baseMin) }}</template>
         </el-table-column>
-        <el-table-column label="基数上限" width="120" align="right">
+        <el-table-column label="基数上限" width="92" align="right">
           <template #default="{ row }">{{ money(row.baseMax) }}</template>
         </el-table-column>
         <el-table-column label="生效月份" prop="effectiveMonth" width="100" />
-        <el-table-column label="排序" prop="sort" width="70" />
-        <el-table-column label="状态" width="80">
+        <el-table-column label="排序" prop="sort" width="64" />
+        <el-table-column label="状态" width="72">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '启用' : '停用' }}
@@ -63,24 +63,21 @@
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="remark" min-width="140" show-overflow-tooltip />
-        <el-table-column label="操作" width="130" fixed="right">
+        <!-- 操作列：图标化 + tooltip（见 styles/index.css 的 .op-btns 与 交接文档 §9） -->
+        <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-permission="'system:social-rate:edit'"
-              link
-              type="primary"
-              @click="openEdit(row)"
-            >
-              修改
-            </el-button>
-            <el-button
-              v-permission="'system:social-rate:remove'"
-              link
-              type="danger"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'system:social-rate:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:social-rate:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -224,7 +221,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createSocialRate, deleteSocialRate, socialRatePage, updateSocialRate } from '@/api/system'
 import type { PageResult, SocialRateDTO, SocialRatePageParams, SocialRateVO } from '@/types/api'
 
@@ -388,35 +385,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
-.field-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>

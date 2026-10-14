@@ -1,5 +1,5 @@
 <template>
-  <div class="role-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -25,14 +25,14 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'system:role:add'" type="primary" :icon="Plus" @click="openCreate()">
           新增角色
         </el-button>
       </div>
 
-      <el-table :data="records" v-loading="loading" border>
+      <el-table :data="records" v-loading="loading" stripe>
         <el-table-column label="角色名称" prop="roleName" min-width="150" />
         <el-table-column label="角色标识" prop="roleCode" min-width="150" />
         <el-table-column label="排序" prop="sort" width="70" />
@@ -44,28 +44,37 @@
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="remark" min-width="180" show-overflow-tooltip />
-        <el-table-column label="操作" width="220" fixed="right">
+        <!-- 操作列：图标化 + tooltip（见 styles/index.css 的 .op-btns 与 交接文档 §9） -->
+        <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'system:role:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button
-              v-permission="'system:role:assign'"
-              link
-              type="primary"
-              @click="openAssign(row)"
-            >
-              分配菜单
-            </el-button>
-            <el-button
-              v-permission="'system:role:remove'"
-              link
-              type="danger"
-              :disabled="isBuiltin(row)"
-              @click="onDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'system:role:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:role:assign'">
+                <el-tooltip content="分配菜单" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="UserFilled" aria-label="分配菜单" @click="openAssign(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:role:remove'">
+                <el-tooltip
+                  :content="isBuiltin(row) ? '内置超级管理员不可删除' : '删除'"
+                  placement="top"
+                  :show-after="150"
+                >
+                  <el-button
+                    link
+                    type="danger"
+                    :icon="Delete"
+                    aria-label="删除"
+                    :disabled="isBuiltin(row)"
+                    @click="onDelete(row)"
+                  />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -181,7 +190,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import type { TreeInstance } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search, UserFilled } from '@element-plus/icons-vue'
 import {
   assignRoleMenus,
   createRole,
@@ -407,30 +416,8 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
-.field-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-}
-
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.pagination/.op-btns/...）
+   已在 styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。只留本页特有的。 */
 .auth-panel {
   max-height: 52vh;
   overflow: auto;
@@ -439,16 +426,11 @@ onMounted(load)
 .tree-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
+  gap: var(--hr-space-2);
+  margin-bottom: var(--hr-space-2);
 }
 
 .auth-tree {
-  margin-top: 4px;
+  margin-top: var(--hr-space-1);
 }
 </style>

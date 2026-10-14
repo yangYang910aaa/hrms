@@ -195,6 +195,18 @@ a {
 }
 
 /**
+ * ⚠️ 上面的 9px 会盖掉 EP 的尺寸变体（默认 8px / large 12px / small 4px，均为同名两段选择器）。
+ * 页面里用了 `size="small"` 的紧凑表（如字典管理的双栏表）会被意外撑高 → 这里按尺寸还回去。
+ */
+.el-table--large .el-table__cell {
+  padding: 12px 0;
+}
+
+.el-table--small .el-table__cell {
+  padding: 4px 0;
+}
+
+/**
  * 斑马纹行底色：EP 的 `.el-table__row--striped td` 取的是 `--el-fill-color-lighter`
  * （默认 #fafafa，本主题下几乎看不出斑马纹）。这里**不动** `--el-fill-color-lighter`
  * （它还供其他组件用），只给 striped 行单独提到与表头同档的浅灰，斑马纹才真正可见。
@@ -275,6 +287,17 @@ a {
 .tip {
   font-size: var(--hr-font-xs);
   color: var(--hr-text-secondary);
+}
+
+/**
+ * 操作列图标按钮组（阶段 3「操作列图标化」的配套类）。
+ * 图标化后兄弟节点是 `<span v-permission>` 包裹的 tooltip，不再依赖 `el-button + el-button` 的 margin，
+ * 所以间距靠这里的 gap 给。实测：4 个图标 ≈104px、3 个 ≈76px、2 个 ≈48px（列宽 = 内容 + 25px）。
+ */
+.op-btns {
+  display: flex;
+  align-items: center;
+  gap: var(--hr-space-2);
 }
 
 /** 表单字段下方的补充说明 */

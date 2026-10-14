@@ -1,5 +1,5 @@
 <template>
-  <div class="dict-page">
+  <div class="page-container">
     <el-row :gutter="12">
       <!-- 左：字典类型 -->
       <el-col :span="8">
@@ -31,7 +31,7 @@
             ref="typeTableRef"
             :data="typeRows"
             v-loading="typeLoading"
-            border
+            stripe
             size="small"
             highlight-current-row
             @current-change="onTypeChange"
@@ -45,24 +45,32 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="76">
               <template #default="{ row }">
-                <el-button
-                  v-permission="'system:dict:edit'"
-                  link
-                  type="primary"
-                  @click.stop="openTypeEdit(row)"
-                >
-                  修改
-                </el-button>
-                <el-button
-                  v-permission="'system:dict:remove'"
-                  link
-                  type="danger"
-                  @click.stop="onTypeDelete(row)"
-                >
-                  删除
-                </el-button>
+                <div class="op-btns">
+                  <span v-permission="'system:dict:edit'">
+                    <el-tooltip content="修改" placement="top" :show-after="150">
+                      <el-button
+                        link
+                        type="primary"
+                        :icon="Edit"
+                        aria-label="修改"
+                        @click.stop="openTypeEdit(row)"
+                      />
+                    </el-tooltip>
+                  </span>
+                  <span v-permission="'system:dict:remove'">
+                    <el-tooltip content="删除" placement="top" :show-after="150">
+                      <el-button
+                        link
+                        type="danger"
+                        :icon="Delete"
+                        aria-label="删除"
+                        @click.stop="onTypeDelete(row)"
+                      />
+                    </el-tooltip>
+                  </span>
+                </div>
               </template>
             </el-table-column>
             <template #empty>暂无数据</template>
@@ -124,7 +132,7 @@
             </el-form-item>
           </el-form>
 
-          <el-table :data="dataRecords" v-loading="dataLoading" border size="small">
+          <el-table :data="dataRecords" v-loading="dataLoading" stripe size="small">
             <el-table-column label="字典标签" prop="dictLabel" min-width="120" />
             <el-table-column label="字典键值" prop="dictValue" min-width="120" />
             <el-table-column label="排序" prop="sort" width="60" />
@@ -142,24 +150,20 @@
               </template>
             </el-table-column>
             <el-table-column label="备注" prop="remark" min-width="120" show-overflow-tooltip />
-            <el-table-column label="操作" width="110" fixed="right">
+            <el-table-column label="操作" width="76" fixed="right">
               <template #default="{ row }">
-                <el-button
-                  v-permission="'system:dict:edit'"
-                  link
-                  type="primary"
-                  @click="openDataEdit(row)"
-                >
-                  修改
-                </el-button>
-                <el-button
-                  v-permission="'system:dict:remove'"
-                  link
-                  type="danger"
-                  @click="onDataDelete(row)"
-                >
-                  删除
-                </el-button>
+                <div class="op-btns">
+                  <span v-permission="'system:dict:edit'">
+                    <el-tooltip content="修改" placement="top" :show-after="150">
+                      <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openDataEdit(row)" />
+                    </el-tooltip>
+                  </span>
+                  <span v-permission="'system:dict:remove'">
+                    <el-tooltip content="删除" placement="top" :show-after="150">
+                      <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDataDelete(row)" />
+                    </el-tooltip>
+                  </span>
+                </div>
               </template>
             </el-table-column>
             <template #empty>{{ currentType ? '暂无数据' : '请先选择左侧字典类型' }}</template>
@@ -295,7 +299,7 @@
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import type { TableInstance } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
   createDictData,
   createDictType,
@@ -588,6 +592,8 @@ onMounted(loadTypes)
 </script>
 
 <style scoped>
+/* 骨架类（.page-container/.search-form/.field-tip/.pagination/.op-btns/...）已在
+   styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。只留本页特有的。 */
 .card-header {
   display: flex;
   align-items: center;
@@ -595,23 +601,7 @@ onMounted(loadTypes)
 }
 
 .sub-title {
-  font-size: 12px;
-  color: #909399;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
-.field-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-placeholder);
 }
 </style>

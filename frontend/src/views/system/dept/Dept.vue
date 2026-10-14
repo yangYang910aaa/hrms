@@ -1,5 +1,5 @@
 <template>
-  <div class="dept-page">
+  <div class="page-container">
     <!-- 搜索栏（树是全量拉回来的，过滤在本地做） -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -25,7 +25,7 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'system:dept:add'" type="primary" :icon="Plus" @click="openCreate()">
           新增部门
@@ -39,9 +39,9 @@
         row-key="id"
         :tree-props="{ children: 'children' }"
         :expand-row-keys="expandKeys"
-        border
+        stripe
       >
-        <el-table-column label="部门名称" prop="deptName" min-width="220" />
+        <el-table-column label="部门名称" prop="deptName" min-width="180" />
         <el-table-column label="编码" prop="deptCode" width="120" />
         <el-table-column label="负责人" prop="leader" width="110" />
         <el-table-column label="电话" prop="phone" width="130" />
@@ -53,22 +53,26 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <!-- 操作列：图标化 + tooltip（见 styles/index.css 的 .op-btns 与 交接文档 §9） -->
+        <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-permission="'system:dept:add'"
-              link
-              type="primary"
-              @click="openCreate(row)"
-            >
-              新增下级
-            </el-button>
-            <el-button v-permission="'system:dept:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button v-permission="'system:dept:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <span v-permission="'system:dept:add'">
+                <el-tooltip content="新增下级" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Plus" aria-label="新增下级" @click="openCreate(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:dept:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:dept:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -133,7 +137,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createDept, deleteDept, deptTree, updateDept } from '@/api/system'
 import { collectBranchIds, filterTree, flattenTree } from '@/utils/tree'
 import type { DeptDTO, DeptNode } from '@/types/api'
@@ -275,15 +279,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.op-btns/...）已在
+   styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>

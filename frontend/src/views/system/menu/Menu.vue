@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-page">
+  <div class="page-container">
     <!-- 搜索栏（完整树一次拉回，过滤在本地做） -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form" @submit.prevent>
@@ -32,7 +32,7 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button v-permission="'system:menu:add'" type="primary" :icon="Plus" @click="openCreate()">
           新增菜单
@@ -47,7 +47,7 @@
         row-key="id"
         :tree-props="{ children: 'children' }"
         :expand-row-keys="expandKeys"
-        border
+        stripe
       >
         <el-table-column label="菜单名称" prop="name" min-width="180" />
         <el-table-column label="类型" width="72">
@@ -74,24 +74,27 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <!-- 操作列：图标化 + tooltip（见 styles/index.css 的 .op-btns 与 交接文档 §9） -->
+        <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
-            <!-- 按钮权限点下不能再挂任何节点，后端会拒，这里直接不给入口 -->
-            <el-button
-              v-if="row.type !== 'F'"
-              v-permission="'system:menu:add'"
-              link
-              type="primary"
-              @click="openCreate(row)"
-            >
-              新增下级
-            </el-button>
-            <el-button v-permission="'system:menu:edit'" link type="primary" @click="openEdit(row)">
-              修改
-            </el-button>
-            <el-button v-permission="'system:menu:remove'" link type="danger" @click="onDelete(row)">
-              删除
-            </el-button>
+            <div class="op-btns">
+              <!-- 按钮权限点下不能再挂任何节点，后端会拒，这里直接不给入口 -->
+              <span v-if="row.type !== 'F'" v-permission="'system:menu:add'">
+                <el-tooltip content="新增下级" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Plus" aria-label="新增下级" @click="openCreate(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:menu:edit'">
+                <el-tooltip content="修改" placement="top" :show-after="150">
+                  <el-button link type="primary" :icon="Edit" aria-label="修改" @click="openEdit(row)" />
+                </el-tooltip>
+              </span>
+              <span v-permission="'system:menu:remove'">
+                <el-tooltip content="删除" placement="top" :show-after="150">
+                  <el-button link type="danger" :icon="Delete" aria-label="删除" @click="onDelete(row)" />
+                </el-tooltip>
+              </span>
+            </div>
           </template>
         </el-table-column>
         <template #empty>暂无数据</template>
@@ -180,7 +183,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createMenu, deleteMenu, menuTree, updateMenu } from '@/api/system'
 import { collectBranchIds, filterTree, flattenTree } from '@/utils/tree'
 import type { MenuDTO, MenuNode } from '@/types/api'
@@ -392,29 +395,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tip {
-  font-size: 12px;
-  color: #909399;
-}
-
-.field-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-}
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.tip/.field-tip/.op-btns/...）已在
+   styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>

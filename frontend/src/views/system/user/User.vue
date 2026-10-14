@@ -266,7 +266,7 @@
             :value="r.id"
           />
         </el-select>
-        <div class="field-tip">保存后该用户会被强制下线，重新登录后新权限生效</div>
+        <div class="field-tip mt-3">保存后该用户会被强制下线，重新登录后新权限生效</div>
       </div>
       <template #footer>
         <el-button @click="roleDialog.visible = false">取 消</el-button>
@@ -289,7 +289,7 @@
           />
         </el-form-item>
       </el-form>
-      <div class="field-tip">保存后该用户会被强制下线，需用新密码重新登录</div>
+      <div class="field-tip mt-3">保存后该用户会被强制下线，需用新密码重新登录</div>
       <template #footer>
         <el-button @click="pwdDialog.visible = false">取 消</el-button>
         <el-button type="primary" :loading="pwdDialog.submitting" @click="onSubmitPwd">
@@ -607,35 +607,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 操作列的图标按钮组（图标化后靠 gap 排布，不再依赖 el-button 之间的 margin） */
-.op-btns {
-  display: flex;
-  align-items: center;
-  gap: var(--hr-space-2);
-}
-
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
-.field-tip {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-}
+/* 骨架类（.page-container/.search-card/.toolbar/.pagination/.op-btns/...）已在
+   styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。 */
 </style>
