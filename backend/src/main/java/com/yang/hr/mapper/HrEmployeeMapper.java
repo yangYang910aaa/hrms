@@ -87,9 +87,13 @@ public interface HrEmployeeMapper extends BaseMapper<HrEmployee> {
      *
      * 注意 `MONTH()/DAY()` 是用不上索引的；职工表规模小（几百行）无所谓，
      * 真到几万行应加一个冗余的 `birth_month` 列并建索引。
+     *
+     * ⚠️ `e.photo` 必须显式选出来：手写列清单漏了它，`EmployeeVO.photo` 就是 null，
+     *    前端 `<el-avatar :src>` 会退回灰色默认图标（工作台"本月生日"踩过这个坑）。
+     *    同一个 VO 在不同接口字段填充不一致 = 契约漂移，加列时对着 EmployeeVO 核一遍。
      */
     @Select("SELECT e.id, e.emp_no, e.name, e.gender, e.birth_date, e.phone, e.dept_id, e.employ_type, "
-            + "       d.dept_name AS deptName "
+            + "       e.photo, d.dept_name AS deptName "
             + "FROM hr_employee e "
             + "LEFT JOIN sys_dept d ON d.id = e.dept_id AND d.deleted = 0 "
             + "WHERE e.deleted = 0 AND e.birth_date IS NOT NULL AND e.employ_type <> 3 "
