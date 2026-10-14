@@ -25,6 +25,8 @@ export interface UserInfo {
   username: string
   realName: string
   deptId: number | null
+  /** 头像 URL（如 /avatars/admin.png）；null 时前端用默认图标 */
+  avatar: string | null
   /** 角色编码列表，如 ["SUPER_ADMIN"] */
   roles: string[]
   /** 权限标识列表，如 ["hr:employee:add"]；按钮级控制用 */

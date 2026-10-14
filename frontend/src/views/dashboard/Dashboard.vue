@@ -2,7 +2,7 @@
   <div class="dashboard">
     <el-card class="welcome">
       <div class="welcome-inner">
-        <el-avatar :size="56" icon="UserFilled" />
+        <el-avatar :size="56" :src="avatar || undefined" />
         <div class="welcome-text">
           <h2>{{ greeting }}，{{ realName || username }}</h2>
           <p class="sub">欢迎使用人力资源管理系统 · 当前角色：{{ rolesText }}</p>
@@ -59,6 +59,7 @@ const userStore = useUserStore()
 const permissionStore = usePermissionStore()
 
 const realName = computed(() => userStore.realName)
+const avatar = computed(() => userStore.avatar)
 const username = computed(() => userStore.info?.username || '')
 const rolesText = computed(() => {
   const roles = userStore.roles || []

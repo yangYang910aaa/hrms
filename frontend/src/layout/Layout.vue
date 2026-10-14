@@ -42,7 +42,7 @@
           <span class="user-divider" />
           <el-dropdown trigger="click" @command="onCommand">
             <span class="user-trigger">
-              <el-avatar :size="28" icon="UserFilled" />
+              <el-avatar :size="28" :src="avatar || undefined" />
               <span class="user-name">{{ realName || '未登录' }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
@@ -85,6 +85,7 @@ const collapsed = ref(localStorage.getItem(STORAGE_KEY) === '1')
 watch(collapsed, (v) => localStorage.setItem(STORAGE_KEY, v ? '1' : '0'))
 
 const realName = computed(() => userStore.realName)
+const avatar = computed(() => userStore.avatar)
 const rolesText = computed(() => {
   const roles = userStore.roles || []
   return roles.length ? `角色：${roles.join('、')}` : '无角色'

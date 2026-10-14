@@ -20,6 +20,9 @@ public class UserInfoVO {
 
     private Long deptId;
 
+    /** 头像地址（前端可直接用的 URL 路径，如 /avatars/admin.png）；未设置时为 null，前端退化为默认图标 */
+    private String avatar;
+
     /** 角色编码列表，如 ["SUPER_ADMIN"] */
     private List<String> roles;
 

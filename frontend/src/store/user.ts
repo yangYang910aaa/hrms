@@ -18,7 +18,8 @@ export const useUserStore = defineStore('user', {
   getters: {
     perms: (state): string[] => (state.info && state.info.perms) || [],
     roles: (state): string[] => (state.info && state.info.roles) || [],
-    realName: (state): string => (state.info && state.info.realName) || ''
+    realName: (state): string => (state.info && state.info.realName) || '',
+    avatar: (state): string => (state.info && state.info.avatar) || ''
   },
   actions: {
     /** 登录成功：落 token 与登录响应里带的 userInfo（含 perms，不必再查一次 me） */

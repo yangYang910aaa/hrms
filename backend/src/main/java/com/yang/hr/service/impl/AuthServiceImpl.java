@@ -129,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
         vo.setUsername(user.getUsername());
         vo.setRealName(user.getRealName());
         vo.setDeptId(user.getDeptId());
+        vo.setAvatar(user.getAvatar());
 
         List<String> roles = userMapper.selectRoleCodesByUserId(user.getId());
         vo.setRoles(roles);
