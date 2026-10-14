@@ -1,8 +1,20 @@
-:root {
-  --hr-sidebar-width: 220px;
-  --hr-header-height: 56px;
-}
+/**
+ * 全局样式入口。
+ *
+ * 三层结构（顺序不能乱 —— 后写的覆盖先写的）：
+ *   1. tokens.css   设计令牌（颜色/圆角/阴影/间距变量）
+ *   2. Element Plus 主题变量覆盖（把 EP 的主色/圆角/文字灰阶换成我们的令牌）
+ *   3. 公共页面骨架类（.page-container/.search-card/.toolbar/... 供各页复用，不再逐页手写）
+ *
+ * ⚠️ 注意：main.ts 里 `element-plus/dist/index.css` 在**本文件之前**引入，
+ *    所以这里的 `--el-*` 变量覆盖才生效；调整引入顺序会导致主题失效。
+ */
 
+@import './tokens.css';
+
+/* ============================================================
+   1. 基线
+   ============================================================ */
 * {
   box-sizing: border-box;
 }
@@ -18,9 +30,9 @@ body,
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  font-size: 14px;
-  color: #303133;
-  background-color: #f0f2f5;
+  font-size: var(--hr-font-base);
+  color: var(--hr-text-primary);
+  background-color: var(--hr-bg-page);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -29,23 +41,242 @@ a {
   text-decoration: none;
 }
 
-/* 页面通用容器：与后端分页查询栏保持一致的间距 */
+/* 滚动条：细一点、灰一点，别用系统默认的粗条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hr-scrollbar-thumb);
+  border-radius: var(--hr-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hr-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   2. Element Plus 主题覆盖
+   —— 只覆盖「与品牌色/圆角/灰阶相关」的变量，组件行为不动。
+   —— light-3/5/7/8/9 与 dark-2 是 EP 用来算 hover/disabled/plain 底色的，
+      必须跟主色一起给，否则按钮悬停会露出 EP 自带的蓝。
+   ============================================================ */
+:root {
+  --el-color-primary: var(--hr-primary);
+  --el-color-primary-light-3: #6692f1;
+  --el-color-primary-light-5: #92b1f5;
+  --el-color-primary-light-7: #bed0f9;
+  --el-color-primary-light-8: #d3e0fb;
+  --el-color-primary-light-9: #e9effd;
+  --el-color-primary-dark-2: #1e4fbc;
+
+  --el-color-success: var(--hr-success);
+  --el-color-success-light-3: #58cea7;
+  --el-color-success-light-5: #88dcc0;
+  --el-color-success-light-7: #b7ead9;
+  --el-color-success-light-8: #cff1e6;
+  --el-color-success-light-9: #e7f8f2;
+  --el-color-success-dark-2: #0d9467;
+
+  --el-color-warning: var(--hr-warning);
+  --el-color-warning-light-3: #f8bb54;
+  --el-color-warning-light-5: #facf85;
+  --el-color-warning-light-7: #fce2b6;
+  --el-color-warning-light-8: #fdeccd;
+  --el-color-warning-light-9: #fef5e7;
+  --el-color-warning-dark-2: #c47f09;
+
+  --el-color-danger: var(--hr-danger);
+  --el-color-danger-light-3: #f47c7c;
+  --el-color-danger-light-5: #f7a2a2;
+  --el-color-danger-light-7: #fac7c7;
+  --el-color-danger-light-8: #fcdada;
+  --el-color-danger-light-9: #fdecec;
+  --el-color-danger-dark-2: #bf3636;
+
+  --el-color-error: var(--hr-danger);
+  --el-color-error-light-9: #fdecec;
+  --el-color-info: var(--hr-info);
+  --el-color-info-light-3: #979ca6;
+  --el-color-info-light-5: #b5b9c0;
+  --el-color-info-light-7: #d3d5d9;
+  --el-color-info-light-9: #f0f1f4;
+  --el-color-info-dark-2: #565b66;
+
+  /* 文字灰阶 */
+  --el-text-color-primary: var(--hr-text-primary);
+  --el-text-color-regular: var(--hr-text-regular);
+  --el-text-color-secondary: var(--hr-text-secondary);
+  --el-text-color-placeholder: var(--hr-text-placeholder);
+  --el-text-color-disabled: var(--hr-text-placeholder);
+
+  /* 边框 / 填充 */
+  --el-border-color: var(--hr-border-strong);
+  --el-border-color-light: var(--hr-border);
+  --el-border-color-lighter: var(--hr-border-light);
+  --el-border-color-extra-light: var(--hr-border-light);
+  --el-fill-color-light: var(--hr-bg-hover);
+  --el-fill-color-lighter: var(--hr-bg-hover);
+  --el-fill-color-blank: var(--hr-bg-card);
+
+  /* 圆角：EP 默认 4px 偏硬，全站提到 8px */
+  --el-border-radius-base: var(--hr-radius);
+  --el-border-radius-small: var(--hr-radius-sm);
+  --el-border-radius-round: var(--hr-radius-full);
+
+  --el-font-size-base: var(--hr-font-base);
+}
+
+/**
+ * ⚠️⚠️ EP 的**组件级**变量必须声明在「组件元素自身」上，写进上面的 `:root` 无效！
+ *
+ * 原因：`--el-table-*` / `--el-card-*` / `--el-dialog-*` / `--el-button-*` 这类变量，
+ *   EP 是写在 `.el-table{}` / `.el-card{}` / `.el-dialog{}` / `.el-button--primary{}` 自身上的。
+ *   而 CSS 变量规则是：**元素自身的声明值恒胜过从祖先（`:root`）继承来的值** ——
+ *   继承值只在"该元素没有声明"时才用得上。所以写在 `:root` 里会被 EP 自己的声明覆盖掉，是死代码。
+ *   （阶段 0 最初就这么写的，实测未生效；2026-10-14 自审发现并修到下面。）
+ * 生效原理：选择器与 EP 同名、特异性相同 → 靠"本文件后引入"取胜（main.ts 里 EP 的 css 在前）。
+ */
+
+/* 表格：表头浅底 + 悬停用主色极浅，替代 EP 默认的灰蓝 */
+.el-table {
+  --el-table-border-color: var(--hr-border-light);
+  --el-table-header-bg-color: var(--hr-bg-sunken);
+  --el-table-header-text-color: var(--hr-text-regular);
+  --el-table-row-hover-bg-color: var(--hr-primary-soft);
+  --el-table-text-color: var(--hr-text-primary);
+}
+
+/* 卡片 / 弹窗圆角与内边距 */
+.el-card {
+  --el-card-border-radius: var(--hr-radius-lg);
+  --el-card-padding: var(--hr-space-4);
+}
+
+.el-dialog {
+  --el-dialog-border-radius: var(--hr-radius-lg);
+}
+
+/* 主按钮 hover 加深一档；border 必须同步改，否则实心按钮会露出浅色描边（和底色不齐） */
+.el-button--primary {
+  --el-button-hover-bg-color: var(--hr-primary-hover);
+  --el-button-hover-border-color: var(--hr-primary-hover);
+}
+
+/* 主按钮加深一点点、加柔和投影（EP 默认按钮偏"平"） */
+.el-button--primary:not(.is-plain):not(.is-text):not(.is-link) {
+  box-shadow: var(--hr-shadow-sm);
+}
+
+.el-button--primary:not(.is-plain):not(.is-text):not(.is-link):hover {
+  box-shadow: var(--hr-shadow-primary);
+}
+
+/* 卡片：统一细边框 + 极淡投影，替代 default 的纯阴影风格。
+   ⚠️ 这里 `!important` 是必要的、不是冗余：EP 的阴影写在 `.el-card.is-always-shadow`（特异性 0,2,0），
+   而 `<el-card>` 默认 shadow="always" 就会带这个类 —— 只用 `.el-card`（0,1,0）压不过它。 */
+.el-card {
+  border: 1px solid var(--hr-border);
+  box-shadow: var(--hr-shadow-sm) !important;
+}
+
+/* 表格：表头字重与间距微调，行更好扫读 */
+.el-table th.el-table__cell {
+  font-weight: 600;
+}
+
+.el-table .el-table__cell {
+  padding: 9px 0;
+}
+
+/* 表单校验提示别顶掉布局 */
+.el-form-item__error {
+  padding-top: 2px;
+}
+
+/* 分页：下拉/跳转与页码按键对齐（EP 默认有轻微错位） */
+.el-pagination {
+  --el-pagination-button-height: 30px;
+}
+
+/* 消息/通知圆角统一 */
+.el-message,
+.el-message-box {
+  border-radius: var(--hr-radius);
+}
+
+/* ============================================================
+   3. 公共页面骨架类
+   —— 改造前这 7 个类在 23~26 个页面里各写了一遍；这里收成全局，
+      页面直接套用即可（阶段3 会把各页 scoped 副本删掉）。
+   ============================================================ */
+
+/** 页面根容器：统一内边距与卡片间距 */
 .page-container {
-  padding: 16px;
+  padding: var(--hr-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hr-space-3);
 }
 
-.page-card {
-  background: #fff;
-  border-radius: 4px;
-  padding: 16px;
+/** 筛选区卡片（放 el-form inline） */
+.search-card .el-card__body {
+  padding: var(--hr-space-4) var(--hr-space-4) var(--hr-space-1);
 }
 
-.page-toolbar {
-  margin-bottom: 16px;
+/** 筛选表单：行间距统一，最后一行不留多余空白 */
+.search-form .el-form-item {
+  margin-bottom: var(--hr-space-3);
 }
 
-.page-pager {
-  margin-top: 16px;
+/** 工具条（新增按钮 + 说明文字） */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--hr-space-2);
+  margin-bottom: var(--hr-space-3);
+  flex-wrap: wrap;
+}
+
+/** 工具条右侧的说明小字 */
+.tip {
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-secondary);
+}
+
+/** 表单字段下方的补充说明 */
+.field-tip {
+  font-size: var(--hr-font-xs);
+  color: var(--hr-text-placeholder);
+  line-height: 1.6;
+}
+
+/** 列表底部翻页 */
+.pagination {
   display: flex;
   justify-content: flex-end;
+  margin-top: var(--hr-space-3);
+}
+
+/** 表格卡片：让表格贴住卡片内边距，避免出现双边框 */
+.table-card .el-card__body {
+  padding: var(--hr-space-4);
+}
+
+/** 通用间距工具类（避免页面里散落 margin-top: 12px 之类魔法值） */
+.mt-3 {
+  margin-top: var(--hr-space-3);
+}
+
+.mt-4 {
+  margin-top: var(--hr-space-4);
+}
+
+.gap-3 {
+  gap: var(--hr-space-3);
 }

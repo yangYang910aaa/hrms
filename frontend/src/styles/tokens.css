@@ -1,0 +1,83 @@
+/**
+ * 设计令牌（Design Tokens）—— 全站唯一的视觉基线。
+ *
+ * 为什么单独一个文件：改造前每个页面各自手写颜色/圆角/阴影（`.search-card`/`.toolbar` 等
+ * 在 25 个页面里各写一遍），改一次样式要改 25 遍。这里把「颜色 / 圆角 / 阴影 / 间距 / 字号」
+ * 收成 CSS 变量，页面只引用变量，从此**改一处、全站生效**。
+ *
+ * 视觉方向（2026-10-14 与用户确认）：**现代蓝（#2563EB）+ 浅色侧边栏**。
+ * ⚠️ 页面里**不要再写死颜色**，一律用 `var(--hr-*)`；确需例外时加注释说明。
+ */
+
+:root {
+  /* ---------------- 主色（现代蓝 #2563EB）---------------- */
+  --hr-primary: #2563eb;
+  --hr-primary-hover: #1d4ed8;   /* 悬停/按下（比主色深一档） */
+  --hr-primary-active: #1e40af;
+  --hr-primary-soft: #eff5ff;    /* 极浅底：选中行、图标底、tag 底 */
+  --hr-primary-soft-2: #dbeafe;  /* 稍深一档：hover 底 */
+  --hr-primary-border: #bfdbfe;  /* 主色浅描边 */
+
+  /* 语义色 */
+  --hr-success: #10b981;
+  --hr-warning: #f59e0b;
+  --hr-danger: #ef4444;
+  --hr-info: #6b7280;
+
+  /* ---------------- 文字 ---------------- */
+  --hr-text-primary: #1f2937;    /* 标题、表格主字段 */
+  --hr-text-regular: #4b5563;    /* 正文 */
+  --hr-text-secondary: #6b7280;  /* 次要说明 */
+  --hr-text-placeholder: #9ca3af;/* 占位、禁用 */
+  --hr-text-inverse: #ffffff;
+
+  /* ---------------- 边框 / 分割线 ---------------- */
+  --hr-border: #e5e7eb;          /* 常规边框（卡片、输入框） */
+  --hr-border-light: #f1f3f5;    /* 表格行线、弱分割 */
+  --hr-border-strong: #d1d5db;
+
+  /* ---------------- 背景 ---------------- */
+  --hr-bg-page: #f5f7fa;         /* 内容区底色 */
+  --hr-bg-card: #ffffff;         /* 卡片 */
+  --hr-bg-hover: #f9fafb;        /* 行悬停 */
+  --hr-bg-sunken: #f3f4f6;       /* 内嵌块（代码、只读区） */
+
+  /* ---------------- 滚动条 ---------------- */
+  --hr-scrollbar-thumb: #d5d9e0;
+  --hr-scrollbar-thumb-hover: #bfc5cf;
+
+  /* ---------------- 圆角 ---------------- */
+  --hr-radius-sm: 6px;           /* 小控件、tag */
+  --hr-radius: 8px;              /* 输入框、按钮（全局基准） */
+  --hr-radius-lg: 12px;          /* 卡片、弹窗 */
+  --hr-radius-full: 999px;       /* 胶囊 */
+
+  /* ---------------- 阴影（克制，靠层次不用重影）---------------- */
+  --hr-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --hr-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+  --hr-shadow-md: 0 6px 18px rgba(16, 24, 40, 0.08);
+  --hr-shadow-primary: 0 4px 14px rgba(37, 99, 235, 0.22); /* 主色按钮/强调卡的投影 */
+
+  /* ---------------- 间距（4 的倍数）---------------- */
+  --hr-space-1: 4px;
+  --hr-space-2: 8px;
+  --hr-space-3: 12px;
+  --hr-space-4: 16px;
+  --hr-space-5: 20px;
+  --hr-space-6: 24px;
+  --hr-space-8: 32px;
+
+  /* ---------------- 字号 ---------------- */
+  --hr-font-xs: 12px;
+  --hr-font-sm: 13px;
+  --hr-font-base: 14px;
+  --hr-font-lg: 16px;
+  --hr-font-xl: 20px;
+  --hr-font-2xl: 28px;
+
+  /* ---------------- 外壳尺寸（与 layout 保持一致）---------------- */
+  --hr-sidebar-width: 232px;
+  --hr-sidebar-collapsed-width: 64px;
+  --hr-header-height: 56px;
+  --hr-z-header: 100;
+}
