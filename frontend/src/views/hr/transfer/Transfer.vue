@@ -165,11 +165,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createTransfer, deleteTransfer, transferPage, updateTransfer } from '@/api/hr'
 import { deptName, deptOptions, empName, employeeLabel, employees, loadDepts, loadEmployees } from '@/utils/lookup'
 import type { PageResult, Transfer, TransferDTO, TransferPageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -208,9 +209,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: Transfer) {
   try {
-    await ElMessageBox.confirm(`确认删除职工【${empName(row.employeeId)}】的这条调动记录？`, '提示', {
-      type: 'warning'
-    })
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】的这条调动记录？`)
   } catch {
     return
   }

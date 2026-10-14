@@ -212,13 +212,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { CircleCheck, Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { approveLeave, createLeave, deleteLeave, leavePage, updateLeave } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { useDict } from '@/utils/dict'
 import { money } from '@/utils/format'
 import type { Leave, LeaveApproveDTO, LeaveDTO, LeavePageParams, PageResult } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 字典与枚举 ----------
 // 字典值是字符串、DTO 里是整数 → Number() 转换
@@ -295,11 +296,7 @@ function onReset() {
 async function onDelete(row: Leave) {
   const extra = row.status === 0 ? '' : `（该单已是「${statusLabel(row.status)}」）`
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】的请假单${extra}？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】的请假单${extra}？`)
   } catch {
     return
   }

@@ -363,7 +363,7 @@ function employTypeTag(employType: number | null): 'success' | 'warning' | 'info
 // ---------- 删除 ----------
 async function onDelete(row: EmployeeVO) {
   try {
-    await confirmDelete(`职工【${row.name}】`, '删除后工号可重新录入。')
+    await confirmDelete(`确认删除职工【${row.name}】？删除后工号可重新录入。`)
   } catch {
     return // 用户点了取消：confirm 取消是抛异常，不接住就是一条未处理的 rejection
   }

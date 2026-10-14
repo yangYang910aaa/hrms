@@ -8,10 +8,11 @@ import { ElMessageBox } from 'element-plus'
  * 于是「删除」和「发布」长得一模一样 —— 危险操作的确认按钮还是 EP 默认的**蓝色**，
  * 不够醒目；文案/标题/type 靠人工保持一致也容易走偏。
  *
- * 两个入口（都返回 Promise；**用户取消时 reject**，所以调用处照旧用 try/catch 或 .catch 处理）：
+ * 两个入口（都返回 Promise；**用户取消时 reject**，所以调用处照旧用 try/catch 或 .catch 处理）。
+ * ⚠️ **两者都接收「完整文案」，函数不做任何拼串** —— 调用侧把整句原样传进来即可：
  *
  *   try {
- *     await confirmDelete(`职工【${row.name}】`, '删除后工号可重新录入。')
+ *     await confirmDelete(`确认删除职工【${row.name}】？删除后工号可重新录入。`)
  *   } catch {
  *     return   // 用户取消
  *   }
@@ -23,9 +24,14 @@ import { ElMessageBox } from 'element-plus'
  *   }
  */
 
-/** 危险操作（删除）确认：标题「删除确认」+ 红色「确认删除」按钮，文案自动补成「确认删除…？」 */
-export function confirmDelete(target: string, extra = '') {
-  return ElMessageBox.confirm(`确认删除${target}？${extra ? ' ' + extra : ''}`, '删除确认', {
+/**
+ * 危险操作（删除）确认：标题「删除确认」+ 红色「确认删除」按钮。
+ * ⚠️ `message` 传的是**完整文案**（调用侧写全整句）。
+ *    早期版本试过"传 target 由函数自动拼串"，结果与铺开时统一采用的"透传完整文案"调用方式混用，
+ *    出现「确认删除确认删除部门【x】？？」这种重复 —— 故统一为"透传完整文案"。
+ */
+export function confirmDelete(message: string) {
+  return ElMessageBox.confirm(message, '删除确认', {
     type: 'warning',
     confirmButtonText: '确认删除',
     cancelButtonText: '取消',

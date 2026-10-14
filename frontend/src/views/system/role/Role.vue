@@ -188,7 +188,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import type { TreeInstance } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search, UserFilled } from '@element-plus/icons-vue'
 import {
@@ -203,6 +203,7 @@ import {
 import { useUserStore } from '@/store/user'
 import { collectBranchIds, flattenTree } from '@/utils/tree'
 import type { MenuNode, PageResult, RoleDTO, RolePageParams, RoleVO } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表（服务端分页） ----------
 const loading = ref(false)
@@ -248,7 +249,7 @@ function isBuiltin(row: RoleVO): boolean {
 // ---------- 删除 ----------
 async function onDelete(row: RoleVO) {
   try {
-    await ElMessageBox.confirm(`确认删除角色【${row.roleName}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除角色【${row.roleName}】？`)
   } catch {
     return // 用户点了取消
   }

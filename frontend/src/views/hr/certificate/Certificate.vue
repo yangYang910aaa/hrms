@@ -167,7 +167,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { certificatePage, createCertificate, deleteCertificate, updateCertificate } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
@@ -177,6 +177,7 @@ import type {
   CertificatePageParams,
   PageResult
 } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -220,11 +221,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: Certificate) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】的证书【${row.certName}】？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】的证书【${row.certName}】？`)
   } catch {
     return
   }

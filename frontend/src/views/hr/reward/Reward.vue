@@ -160,13 +160,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createReward, deleteReward, rewardPage, updateReward } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { useDict } from '@/utils/dict'
 import { money } from '@/utils/format'
 import type { PageResult, RewardPunish, RewardPunishDTO, RewardPunishPageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 字典 ----------
 // 字典值返回的是字符串，而 DTO 的 type 是整数 → 统一 Number() 转一下
@@ -217,11 +218,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: RewardPunish) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】的这条${label('reward_type', row.type)}？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】的这条${label('reward_type', row.type)}？`)
   } catch {
     return
   }

@@ -183,11 +183,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { coursePage, createCourse, deleteCourse, updateCourse } from '@/api/trn'
 import { money } from '@/utils/format'
 import type { PageResult, TrnCourse, TrnCourseDTO, TrnCoursePageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 类别枚举（不在 sys_dict 里，硬编码） ----------
 const TYPE_OPTIONS = [
@@ -245,11 +246,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: TrnCourse) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除课程【${row.courseName}】？若已被培训期次引用，后端会拒绝。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除课程【${row.courseName}】？若已被培训期次引用，后端会拒绝。`)
   } catch {
     return
   }

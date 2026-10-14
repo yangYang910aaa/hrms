@@ -191,11 +191,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createIntern, deleteIntern, internPage, updateIntern } from '@/api/hr'
 import { deptName, deptOptions, empName, employeeLabel, employees, loadDepts, loadEmployees } from '@/utils/lookup'
 import type { Intern, InternDTO, InternPageParams, PageResult } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 状态枚举（不在 sys_dict 里，硬编码） ----------
 const STATUS_OPTIONS = [
@@ -259,7 +260,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: Intern) {
   try {
-    await ElMessageBox.confirm(`确认删除实习生【${row.name}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除实习生【${row.name}】？`)
   } catch {
     return
   }

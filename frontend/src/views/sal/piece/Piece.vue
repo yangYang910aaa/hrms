@@ -162,12 +162,13 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createPiece, deletePiece, piecePage, updatePiece } from '@/api/sal'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { money } from '@/utils/format'
 import type { PageResult, SalPieceWage, SalPieceWageDTO, SalPieceWagePageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -211,11 +212,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: SalPieceWage) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】${row.month} 的这条计件记录？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】${row.month} 的这条计件记录？`)
   } catch {
     return
   }

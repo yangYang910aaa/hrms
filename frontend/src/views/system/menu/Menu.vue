@@ -182,11 +182,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createMenu, deleteMenu, menuTree, updateMenu } from '@/api/system'
 import { collectBranchIds, filterTree, flattenTree } from '@/utils/tree'
 import type { MenuDTO, MenuNode } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 树数据 ----------
 const loading = ref(false)
@@ -271,9 +272,7 @@ function typeText(type: string): string {
 // ---------- 删除 ----------
 async function onDelete(row: MenuNode) {
   try {
-    await ElMessageBox.confirm(`确认删除【${row.name}】？该节点下还有子节点时会删除失败。`, '提示', {
-      type: 'warning'
-    })
+    await confirmDelete(`确认删除【${row.name}】？该节点下还有子节点时会删除失败。`)
   } catch {
     return // 用户点了取消
   }

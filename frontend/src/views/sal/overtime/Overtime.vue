@@ -163,7 +163,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createOvertime, deleteOvertime, overtimePage, updateOvertime } from '@/api/sal'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
@@ -175,6 +175,7 @@ import type {
   SalOvertimeRecordDTO,
   SalOvertimeRecordPageParams
 } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 字典 ----------
 const { dictMap, load: loadDict, label } = useDict(['overtime_type'])
@@ -227,11 +228,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: SalOvertimeRecord) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】${row.month} 的这条${label('overtime_type', row.overtimeType)}记录？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】${row.month} 的这条${label('overtime_type', row.overtimeType)}记录？`)
   } catch {
     return
   }

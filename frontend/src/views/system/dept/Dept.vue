@@ -136,11 +136,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createDept, deleteDept, deptTree, updateDept } from '@/api/system'
 import { collectBranchIds, filterTree, flattenTree } from '@/utils/tree'
 import type { DeptDTO, DeptNode } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 树数据 ----------
 const loading = ref(false)
@@ -189,7 +190,7 @@ const expandKeys = computed(() => collectBranchIds(rows.value))
 // ---------- 删除 ----------
 async function onDelete(row: DeptNode) {
   try {
-    await ElMessageBox.confirm(`确认删除部门【${row.deptName}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除部门【${row.deptName}】？`)
   } catch {
     return // 用户点了取消：confirm 取消是抛异常，不接住就是一条未处理的 rejection
   }

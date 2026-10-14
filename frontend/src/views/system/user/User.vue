@@ -302,7 +302,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Key, Plus, Refresh, Search, UserFilled } from '@element-plus/icons-vue'
 import {
   assignUserRoles,
@@ -319,6 +319,7 @@ import { deptTree as publicDeptTree } from '@/api/common'
 import { useUserStore } from '@/store/user'
 import { flattenTree } from '@/utils/tree'
 import type { DeptNode, PageResult, RoleVO, UserDTO, UserPageParams, UserVO } from '@/types/api'
+import { confirmAction, confirmDelete } from '@/utils/confirm'
 
 // ---------- 下拉数据 ----------
 const deptTreeData = ref<DeptNode[]>([])
@@ -404,11 +405,7 @@ function formatTime(value: string | null): string {
 async function beforeStatusChange(row: UserVO): Promise<boolean> {
   const next = row.status === 1 ? 0 : 1
   try {
-    await ElMessageBox.confirm(
-      `确认${next === 1 ? '启用' : '停用'}账号【${row.username}】？停用后该用户会被强制下线。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmAction(`确认${next === 1 ? '启用' : '停用'}账号【${row.username}】？停用后该用户会被强制下线。`)
   } catch {
     return false // 取消：开关保持原状
   }
@@ -425,7 +422,7 @@ async function beforeStatusChange(row: UserVO): Promise<boolean> {
 // ---------- 删除 ----------
 async function onDelete(row: UserVO) {
   try {
-    await ElMessageBox.confirm(`确认删除用户【${row.username}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除用户【${row.username}】？`)
   } catch {
     return
   }

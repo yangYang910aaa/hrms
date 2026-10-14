@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
   createOvertimeStandard,
@@ -153,6 +153,7 @@ import type {
   SalOvertimeStandardDTO,
   SalOvertimeStandardPageParams
 } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 字典 ----------
 // 字典值是字符串、DTO 里是整数 → Number() 转换
@@ -203,11 +204,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: SalOvertimeStandard) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除【${salLevelName(row.levelId)} · ${label('overtime_type', row.overtimeType)}】的加班标准？删除后可重建同组合。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除【${salLevelName(row.levelId)} · ${label('overtime_type', row.overtimeType)}】的加班标准？删除后可重建同组合。`)
   } catch {
     return
   }

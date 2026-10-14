@@ -220,10 +220,11 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createSocialRate, deleteSocialRate, socialRatePage, updateSocialRate } from '@/api/system'
 import type { PageResult, SocialRateDTO, SocialRatePageParams, SocialRateVO } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -275,7 +276,7 @@ function money(value: number | null): string {
 // ---------- 删除 ----------
 async function onDelete(row: SocialRateVO) {
   try {
-    await ElMessageBox.confirm(`确认删除险种【${row.rateName}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除险种【${row.rateName}】？`)
   } catch {
     return
   }

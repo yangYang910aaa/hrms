@@ -221,7 +221,7 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import {
   CircleCheck,
   Delete,
@@ -243,6 +243,7 @@ import {
   updateNotice
 } from '@/api/query'
 import type { NoticeDTO, NoticePageParams, PageResult, SysNotice } from '@/types/api'
+import { confirmAction, confirmDelete } from '@/utils/confirm'
 
 /**
  * 通知管理（公共查询 → 通知管理）。
@@ -329,9 +330,7 @@ function onReset() {
 // ---------- 状态流转 ----------
 async function onPublish(row: SysNotice) {
   try {
-    await ElMessageBox.confirm(`确认发布通知【${row.title}】？发布后将记录发布人与发布时间。`, '提示', {
-      type: 'warning'
-    })
+    await confirmAction(`确认发布通知【${row.title}】？发布后将记录发布人与发布时间。`)
   } catch {
     return
   }
@@ -342,9 +341,7 @@ async function onPublish(row: SysNotice) {
 
 async function onOffline(row: SysNotice) {
   try {
-    await ElMessageBox.confirm(`确认下线通知【${row.title}】？下线后可从列表中再次发布。`, '提示', {
-      type: 'warning'
-    })
+    await confirmAction(`确认下线通知【${row.title}】？下线后可从列表中再次发布。`)
   } catch {
     return
   }
@@ -355,7 +352,7 @@ async function onOffline(row: SysNotice) {
 
 async function onDelete(row: SysNotice) {
   try {
-    await ElMessageBox.confirm(`确认删除通知【${row.title}】？`, '提示', { type: 'warning' })
+    await confirmDelete(`确认删除通知【${row.title}】？`)
   } catch {
     return
   }

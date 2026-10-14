@@ -217,12 +217,13 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createSocial, deleteSocial, socialPage, updateSocial } from '@/api/hr'
 import { empName, employeeLabel, employees, loadEmployees } from '@/utils/lookup'
 import { money, percent } from '@/utils/format'
 import type { PageResult, SocialSecurity, SocialSecurityDTO, SocialSecurityPageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 下拉数据 ----------
 // 列表接口直出实体，只有 employeeId → 用共享的 employee 下拉翻译姓名
@@ -269,11 +270,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: SocialSecurity) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除职工【${empName(row.employeeId)}】${row.month} 的社保记录？删除后同月可重新登记。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除职工【${empName(row.employeeId)}】${row.month} 的社保记录？删除后同月可重新登记。`)
   } catch {
     return // 用户取消：confirm 取消会抛异常，不接住就是未处理的 rejection
   }

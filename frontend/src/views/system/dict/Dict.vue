@@ -297,7 +297,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import type { TableInstance } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
@@ -317,6 +317,7 @@ import type {
   DictTypeVO,
   PageResult
 } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ------------------------------------------------------------------ 左：字典类型
 const typeLoading = ref(false)
@@ -451,11 +452,7 @@ function resetTypeDialog() {
 
 async function onTypeDelete(row: DictTypeVO) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除字典类型【${row.dictName}】？该类型下还有数据项时会删除失败。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除字典类型【${row.dictName}】？该类型下还有数据项时会删除失败。`)
   } catch {
     return
   }
@@ -549,9 +546,7 @@ function resetDataDialog() {
 
 async function onDataDelete(row: DictDataVO) {
   try {
-    await ElMessageBox.confirm(`确认删除字典数据【${row.dictLabel}】？`, '提示', {
-      type: 'warning'
-    })
+    await confirmDelete(`确认删除字典数据【${row.dictLabel}】？`)
   } catch {
     return
   }

@@ -203,7 +203,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { ElMessage, type FormInstance } from 'element-plus'
 import { Delete, Edit, Money, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { deletePayment, generatePayment, payPayment, paymentPage, updatePayment } from '@/api/sal'
 import { employeeLabel, employees, loadEmployees } from '@/utils/lookup'
@@ -216,6 +216,7 @@ import type {
   SalPaymentUpdateDTO,
   SalPaymentVO
 } from '@/types/api'
+import { confirmAction, confirmDelete } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -303,11 +304,7 @@ async function onGenerate() {
 // ---------- 发放 ----------
 async function onPay(row: SalPaymentVO) {
   try {
-    await ElMessageBox.confirm(
-      `确认给【${row.employeeName}】发放 ${row.month} 的工资 ${money(row.netSalary)}？发放后不可撤销，对应工资档案也会置为已发放。`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmAction(`确认给【${row.employeeName}】发放 ${row.month} 的工资 ${money(row.netSalary)}？发放后不可撤销，对应工资档案也会置为已发放。`)
   } catch {
     return
   }
@@ -319,9 +316,7 @@ async function onPay(row: SalPaymentVO) {
 // ---------- 删除 ----------
 async function onDelete(row: SalPaymentVO) {
   try {
-    await ElMessageBox.confirm(`确认删除【${row.employeeName}】${row.month} 的发放单？`, '提示', {
-      type: 'warning'
-    })
+    await confirmDelete(`确认删除【${row.employeeName}】${row.month} 的发放单？`)
   } catch {
     return
   }

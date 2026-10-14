@@ -199,11 +199,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createFrontline, deleteFrontline, frontlinePage, updateFrontline } from '@/api/trn'
 import { courseLabel, courseName, courses, deptName, deptOptions, loadCourses, loadDepts } from '@/utils/lookup'
 import type { PageResult, TrnFrontline, TrnFrontlineDTO, TrnFrontlinePageParams } from '@/types/api'
+import { confirmDelete } from '@/utils/confirm'
 
 // ---------- 枚举（不在 sys_dict 里，硬编码） ----------
 const STATUS_OPTIONS = [
@@ -267,11 +268,7 @@ function onReset() {
 // ---------- 删除 ----------
 async function onDelete(row: TrnFrontline) {
   try {
-    await ElMessageBox.confirm(
-      `确认删除课程【${courseName(row.courseId)}】的这条一线工培训期次？`,
-      '提示',
-      { type: 'warning' }
-    )
+    await confirmDelete(`确认删除课程【${courseName(row.courseId)}】的这条一线工培训期次？`)
   } catch {
     return
   }
