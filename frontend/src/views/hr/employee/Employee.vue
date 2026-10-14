@@ -1,5 +1,5 @@
 <template>
-  <div class="employee-page">
+  <div class="page-container">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query" class="search-form">
@@ -30,7 +30,7 @@
     </el-card>
 
     <!-- 列表 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="table-card">
       <div class="toolbar">
         <el-button
           v-permission="'hr:employee:add'"
@@ -42,7 +42,7 @@
         </el-button>
       </div>
 
-      <el-table :data="records" v-loading="loading" border row-key="id">
+      <el-table :data="records" v-loading="loading" stripe row-key="id">
         <el-table-column label="工号" prop="empNo" width="100" />
         <el-table-column label="姓名" min-width="110">
           <template #default="{ row }">
@@ -250,7 +250,7 @@
                 >
                   <el-button size="small">上传照片</el-button>
                 </el-upload>
-                <span class="photo-tip">不超过 5MB；上传成功后自动带入表单</span>
+                <span class="field-tip">不超过 5MB；上传成功后自动带入表单</span>
               </div>
             </el-form-item>
           </el-col>
@@ -507,32 +507,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-card {
-  margin-bottom: 12px;
-}
-
-.search-form :deep(.el-form-item) {
-  margin-bottom: 12px;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
+/* 骨架类（.page-container/.search-card/.search-form/.toolbar/.pagination/...）已在
+   styles/index.css 全局定义，这里不再各写一份副本（阶段 3 收敛）。
+   只保留本页特有的样式。 */
 .photo-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.photo-tip {
-  font-size: 12px;
-  color: #909399;
+  gap: var(--hr-space-3);
 }
 </style>
