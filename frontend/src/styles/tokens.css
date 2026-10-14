@@ -76,6 +76,10 @@
   --hr-font-2xl: 28px;
   --hr-font-3xl: 34px;           /* 登录页品牌主标题等特大字号 */
 
+  /* ---------------- 动效 ---------------- */
+  --hr-ease: cubic-bezier(0, 0, 0.2, 1);
+  --hr-duration: 0.25s;
+
   /* ---------------- 外壳尺寸（与 layout 保持一致）---------------- */
   --hr-sidebar-width: 232px;
   --hr-sidebar-collapsed-width: 64px;
