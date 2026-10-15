@@ -42,11 +42,12 @@
       </div>
 
       <el-table
+        :key="treeKey"
         v-loading="loading"
         :data="rows"
         row-key="id"
         :tree-props="{ children: 'children' }"
-        :expand-row-keys="expandKeys"
+        default-expand-all
         stripe
       >
         <el-table-column label="菜单名称" prop="name" min-width="150" />
@@ -181,11 +182,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createMenu, deleteMenu, menuTree, updateMenu } from '@/api/system'
-import { collectBranchIds, filterTree, flattenTree } from '@/utils/tree'
+import { filterTree, flattenTree } from '@/utils/tree'
 import type { MenuDTO, MenuNode } from '@/types/api'
 import { confirmDelete } from '@/utils/confirm'
 
@@ -255,7 +256,19 @@ const rows = computed(() =>
   })
 )
 
-const expandKeys = computed(() => collectBranchIds(rows.value))
+/**
+ * 默认全部展开。
+ * ⚠️ EP 树表的 `expand-row-keys` 只在**挂载**时可靠生效：与数据同帧更新会被内部重置吞掉
+ *    （watch 路径实测无效："已展开数=0"，dept/menu 同踩；数据渲染完的下一拍再赋值同样无效）。
+ *    → 用 `default-expand-all` + `:key`：数据/过滤变化后让表格重挂载一次，挂载时全部展开即生效。
+ *      树很小（dept 5 行 / menu 116 行）重挂载无感；用户随后的折叠不受影响（rows 不变就不重挂载）。
+ */
+const treeKey = ref(0)
+watch(rows, () => {
+  nextTick(() => {
+    treeKey.value++
+  })
+})
 
 function typeTag(type: string): 'primary' | 'success' | 'warning' {
   if (type === 'M') return 'primary'
