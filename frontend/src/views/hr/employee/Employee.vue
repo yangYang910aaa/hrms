@@ -43,14 +43,14 @@
       </div>
 
       <el-table :data="records" v-loading="loading" stripe row-key="id">
-        <el-table-column label="工号" prop="empNo" width="100" />
+        <el-table-column label="工号" prop="empNo" min-width="90" />
         <el-table-column label="姓名" min-width="110">
           <template #default="{ row }">
             <el-avatar :size="22" :src="row.photo || undefined" style="vertical-align: middle; margin-right: 6px" />
             {{ row.name }}
           </template>
         </el-table-column>
-        <el-table-column label="性别" width="70">
+        <el-table-column label="性别" min-width="64">
           <template #default="{ row }">{{ label('sex', row.gender) }}</template>
         </el-table-column>
         <el-table-column label="部门" prop="deptName" min-width="110" show-overflow-tooltip />
@@ -58,22 +58,22 @@
           <template #default="{ row }">{{ label('edu_level', row.eduLevel) }}</template>
         </el-table-column>
         <el-table-column label="职位" prop="position" min-width="110" show-overflow-tooltip />
-        <el-table-column label="入职日期" prop="hireDate" width="120" />
-        <el-table-column label="在职状态" width="90">
+        <el-table-column label="入职日期" prop="hireDate" min-width="110" />
+        <el-table-column label="在职状态" min-width="84">
           <template #default="{ row }">
             <el-tag :type="employTypeTag(row.employType)" size="small">
               {{ label('employ_type', row.employType) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="启用" width="70">
+        <el-table-column label="启用" min-width="68">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '正常' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="年龄" width="70">
+        <el-table-column label="年龄" min-width="56">
           <template #default="{ row }">{{ row.age ?? '—' }}</template>
         </el-table-column>
         <el-table-column label="操作" width="76" fixed="right">

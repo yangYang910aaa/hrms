@@ -46,26 +46,26 @@
         <el-table-column label="职工" min-width="85">
           <template #default="{ row }">{{ empName(row.employeeId) }}</template>
         </el-table-column>
-        <el-table-column label="类型" width="76">
+        <el-table-column label="类型" min-width="64">
           <template #default="{ row }">{{ label('leave_type', row.leaveType) }}</template>
         </el-table-column>
-        <el-table-column label="开始时间" width="145">
+        <el-table-column label="开始时间" min-width="110" show-overflow-tooltip>
           <template #default="{ row }">{{ dt(row.startTime) }}</template>
         </el-table-column>
-        <el-table-column label="结束时间" width="145">
+        <el-table-column label="结束时间" min-width="110" show-overflow-tooltip>
           <template #default="{ row }">{{ dt(row.endTime) }}</template>
         </el-table-column>
-        <el-table-column label="天数" width="70" align="right">
+        <el-table-column label="天数" min-width="56" align="right">
           <template #default="{ row }">{{ money(row.days) }}</template>
         </el-table-column>
         <el-table-column label="事由" prop="reason" min-width="95" show-overflow-tooltip />
-        <el-table-column label="状态" width="88">
+        <el-table-column label="状态" min-width="80">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="审批人" prop="approver" width="80" />
-        <el-table-column label="审批时间" width="145">
+        <el-table-column label="审批人" prop="approver" min-width="72" />
+        <el-table-column label="审批时间" min-width="110" show-overflow-tooltip>
           <template #default="{ row }">{{ dt(row.approveTime) }}</template>
         </el-table-column>
         <el-table-column label="审批意见" prop="approveRemark" min-width="90" show-overflow-tooltip />

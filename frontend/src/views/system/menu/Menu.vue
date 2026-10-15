@@ -49,25 +49,25 @@
         :expand-row-keys="expandKeys"
         stripe
       >
-        <el-table-column label="菜单名称" prop="name" min-width="180" />
-        <el-table-column label="类型" width="72">
+        <el-table-column label="菜单名称" prop="name" min-width="150" />
+        <el-table-column label="类型" min-width="64">
           <template #default="{ row }">
             <el-tag :type="typeTag(row.type)" size="small">{{ typeText(row.type) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="排序" prop="sort" width="64" />
-        <el-table-column label="路由地址" prop="path" min-width="120" show-overflow-tooltip />
-        <el-table-column label="组件路径" prop="component" min-width="180" show-overflow-tooltip />
-        <el-table-column label="权限标识" prop="perms" min-width="160" show-overflow-tooltip />
-        <el-table-column label="图标" prop="icon" width="90" />
-        <el-table-column label="显示" width="70">
+        <el-table-column label="排序" prop="sort" min-width="56" />
+        <el-table-column label="路由地址" prop="path" min-width="110" show-overflow-tooltip />
+        <el-table-column label="组件路径" prop="component" min-width="140" show-overflow-tooltip />
+        <el-table-column label="权限标识" prop="perms" min-width="140" show-overflow-tooltip />
+        <el-table-column label="图标" prop="icon" min-width="76" />
+        <el-table-column label="显示" min-width="64">
           <template #default="{ row }">
             <el-tag :type="row.visible === 1 ? 'success' : 'info'" size="small">
               {{ row.visible === 1 ? '显示' : '隐藏' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="70">
+        <el-table-column label="状态" min-width="64">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '正常' : '停用' }}

@@ -48,26 +48,26 @@
       </div>
 
       <el-table :data="records" v-loading="loading" stripe>
-        <el-table-column label="职工" width="130" show-overflow-tooltip>
+        <el-table-column label="职工" min-width="120" show-overflow-tooltip>
           <template #default="{ row }">{{ row.empNo }} {{ row.employeeName }}</template>
         </el-table-column>
-        <el-table-column label="月份" prop="month" width="100" />
-        <el-table-column label="应发金额" width="110" align="right">
+        <el-table-column label="月份" prop="month" min-width="88" />
+        <el-table-column label="应发金额" min-width="100" align="right">
           <template #default="{ row }">
             <strong>{{ money(row.netSalary) }}</strong>
           </template>
         </el-table-column>
-        <el-table-column label="发放方式" prop="payWay" width="110" />
-        <el-table-column label="银行账号" prop="bankAccount" min-width="150" show-overflow-tooltip />
-        <el-table-column label="发放日期" prop="payDate" width="112" />
-        <el-table-column label="状态" width="88">
+        <el-table-column label="发放方式" prop="payWay" min-width="100" />
+        <el-table-column label="银行账号" prop="bankAccount" min-width="130" show-overflow-tooltip />
+        <el-table-column label="发放日期" prop="payDate" min-width="108" />
+        <el-table-column label="状态" min-width="84">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '已发放' : '未发放' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="remark" min-width="100" show-overflow-tooltip />
+        <el-table-column label="备注" prop="remark" min-width="90" show-overflow-tooltip />
         <el-table-column label="操作" width="104" fixed="right">
           <template #default="{ row }">
             <div class="op-btns">

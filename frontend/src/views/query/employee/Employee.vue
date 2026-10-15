@@ -47,29 +47,29 @@
           12 列原来合计 ≈1330px > 1440 下容器可用宽 → 横向溢出、fixed 操作列压住「状态」。
           姓名/部门/岗位/学历 用 min-width（下限，宽屏 EP 会把富余摊给它们，不会右侧留白）。
         -->
-        <el-table-column label="工号" prop="empNo" width="90" />
+        <el-table-column label="工号" prop="empNo" min-width="84" />
         <el-table-column label="姓名" prop="name" min-width="96" show-overflow-tooltip />
-        <el-table-column label="性别" width="64">
+        <el-table-column label="性别" min-width="60">
           <template #default="{ row }">{{ label('sex', row.gender) }}</template>
         </el-table-column>
-        <el-table-column label="年龄" width="56" align="right">
+        <el-table-column label="年龄" min-width="52" align="right">
           <template #default="{ row }">{{ row.age ?? '—' }}</template>
         </el-table-column>
-        <el-table-column label="部门" prop="deptName" min-width="104" show-overflow-tooltip />
-        <el-table-column label="岗位" prop="position" min-width="96" show-overflow-tooltip />
-        <el-table-column label="学历" min-width="96" show-overflow-tooltip>
+        <el-table-column label="部门" prop="deptName" min-width="96" show-overflow-tooltip />
+        <el-table-column label="岗位" prop="position" min-width="88" show-overflow-tooltip />
+        <el-table-column label="学历" min-width="84" show-overflow-tooltip>
           <template #default="{ row }">{{ label('edu_level', row.eduLevel) }}</template>
         </el-table-column>
-        <el-table-column label="入职日期" prop="hireDate" width="108" />
-        <el-table-column label="在职状态" width="84">
+        <el-table-column label="入职日期" prop="hireDate" min-width="104" />
+        <el-table-column label="在职状态" min-width="80">
           <template #default="{ row }">
             <el-tag :type="row.employType === 3 ? 'info' : 'success'" size="small">
               {{ label('employ_type', row.employType) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="手机" prop="phone" width="116" />
-        <el-table-column label="状态" width="76">
+        <el-table-column label="手机" prop="phone" min-width="104" />
+        <el-table-column label="状态" min-width="72">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '正常' : '停用' }}

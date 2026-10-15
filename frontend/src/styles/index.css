@@ -234,6 +234,30 @@ a {
   --el-pagination-button-height: 30px;
 }
 
+/**
+ * 宽表横向滚动条**常显**（阶段 4 响应式）。
+ * 背景：用户反馈"状态列被遮住又滚不动" —— 其实是 EP 的横向滚动条默认**不可见**。
+ * ⚠️ EP 的 `.el-scrollbar__bar` 在 CSS 里**没有** display/opacity 规则，"悬停表格才出现"
+ *   是**内联 style**（JS 控制）→ 这里必须用 `!important` 才压得掉。
+ */
+.el-table .el-scrollbar__bar.is-horizontal {
+  display: block !important;
+  opacity: 0.45;
+  transition: opacity 0.2s var(--hr-ease);
+}
+
+.el-table .el-scrollbar__bar.is-horizontal:hover {
+  opacity: 1;
+}
+
+/* 窄屏：分页只留「上一页 / 页码 / 下一页」，藏掉"每页条数"与"跳转"（否则会换行/溢出） */
+@media (max-width: 900px) {
+  .el-pagination .el-pagination__sizes,
+  .el-pagination .el-pagination__jump {
+    display: none;
+  }
+}
+
 /* 消息/通知圆角统一 */
 .el-message,
 .el-message-box {
@@ -252,6 +276,14 @@ a {
   display: flex;
   flex-direction: column;
   gap: var(--hr-space-3);
+}
+
+/* 窄屏：内边距收窄一档，把宽度让给表格 */
+@media (max-width: 900px) {
+  .page-container {
+    padding: var(--hr-space-3);
+    gap: var(--hr-space-2);
+  }
 }
 
 /**

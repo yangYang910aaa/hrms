@@ -39,30 +39,30 @@
       </div>
 
       <el-table :data="records" v-loading="loading" stripe>
-        <el-table-column label="险种名称" prop="rateName" min-width="130" />
-        <el-table-column label="编码" prop="rateCode" width="90" />
-        <el-table-column label="单位比例" width="132" align="right">
+        <el-table-column label="险种名称" prop="rateName" min-width="120" />
+        <el-table-column label="编码" prop="rateCode" min-width="80" />
+        <el-table-column label="单位比例" min-width="96" align="right" show-overflow-tooltip>
           <template #default="{ row }">{{ rate(row.companyRate) }}</template>
         </el-table-column>
-        <el-table-column label="个人比例" width="132" align="right">
+        <el-table-column label="个人比例" min-width="96" align="right" show-overflow-tooltip>
           <template #default="{ row }">{{ rate(row.personalRate) }}</template>
         </el-table-column>
-        <el-table-column label="基数下限" width="92" align="right">
+        <el-table-column label="基数下限" min-width="88" align="right">
           <template #default="{ row }">{{ money(row.baseMin) }}</template>
         </el-table-column>
-        <el-table-column label="基数上限" width="92" align="right">
+        <el-table-column label="基数上限" min-width="88" align="right">
           <template #default="{ row }">{{ money(row.baseMax) }}</template>
         </el-table-column>
-        <el-table-column label="生效月份" prop="effectiveMonth" width="100" />
-        <el-table-column label="排序" prop="sort" width="64" />
-        <el-table-column label="状态" width="72">
+        <el-table-column label="生效月份" prop="effectiveMonth" min-width="88" />
+        <el-table-column label="排序" prop="sort" min-width="56" />
+        <el-table-column label="状态" min-width="68">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="remark" min-width="140" show-overflow-tooltip />
+        <el-table-column label="备注" prop="remark" min-width="100" show-overflow-tooltip />
         <!-- 操作列：图标化 + tooltip（见 styles/index.css 的 .op-btns 与 交接文档 §9） -->
         <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">

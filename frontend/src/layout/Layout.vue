@@ -20,9 +20,9 @@
               role="button"
               tabindex="0"
               :aria-label="collapsed ? '展开菜单' : '折叠菜单'"
-              @click="collapsed = !collapsed"
-              @keyup.enter="collapsed = !collapsed"
-              @keyup.space="collapsed = !collapsed"
+              @click="toggleCollapsed"
+              @keyup.enter="toggleCollapsed"
+              @keyup.space="toggleCollapsed"
             >
               <el-icon :size="18">
                 <Fold v-if="!collapsed" />
@@ -66,23 +66,56 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessageBox } from 'element-plus'
 import SideMenu from './components/SideMenu.vue'
 import { useUserStore } from '@/store/user'
 import { usePermissionStore } from '@/store/permission'
 import { logout } from '@/api/auth'
+import { confirmAction } from '@/utils/confirm'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const permissionStore = usePermissionStore()
 
-/** 侧边栏折叠状态：存 localStorage，刷新后保持用户习惯 */
+/**
+ * 侧边栏折叠：两套来源叠加（UI 阶段 4 响应式）
+ *  - `userCollapsed`：用户在**宽屏**下手动切换的偏好，存 localStorage 长期保持；
+ *  - `isNarrow`：窗口 ≤ `NARROW_MAX` 时**自动折叠成 64px 图标栏**，把宽度让给内容区
+ *    （窄屏下宽表本来就被 fixed 列挤，这一下能多出 ~170px）。
+ * ⚠️ 自动折叠**不写回 localStorage** —— 否则会把用户的宽屏偏好污染成"折叠"。
+ * ⚠️ 窄屏下仍允许手动展开（`narrowOverride` 临时覆盖），跨过断点即失效、回到跟随规则。
+ */
 const STORAGE_KEY = 'hr-sidebar-collapsed'
-const collapsed = ref(localStorage.getItem(STORAGE_KEY) === '1')
-watch(collapsed, (v) => localStorage.setItem(STORAGE_KEY, v ? '1' : '0'))
+const NARROW_MAX = 1199
+const userCollapsed = ref(localStorage.getItem(STORAGE_KEY) === '1')
+watch(userCollapsed, (v) => localStorage.setItem(STORAGE_KEY, v ? '1' : '0'))
+
+const isNarrow = ref(false)
+const narrowOverride = ref<boolean | null>(null)
+const collapsed = computed(() =>
+  isNarrow.value ? (narrowOverride.value ?? true) : userCollapsed.value
+)
+
+function toggleCollapsed() {
+  if (isNarrow.value) narrowOverride.value = !collapsed.value
+  else userCollapsed.value = !userCollapsed.value
+}
+
+let mql: MediaQueryList | null = null
+function syncNarrow(e: MediaQueryList | MediaQueryListEvent) {
+  isNarrow.value = e.matches
+  narrowOverride.value = null // 跨断点时丢弃临时覆盖
+}
+
+onMounted(() => {
+  mql = window.matchMedia(`(max-width: ${NARROW_MAX}px)`)
+  syncNarrow(mql)
+  mql.addEventListener('change', syncNarrow)
+})
+
+onBeforeUnmount(() => mql?.removeEventListener('change', syncNarrow))
 
 const realName = computed(() => userStore.realName)
 const avatar = computed(() => userStore.avatar)
@@ -97,7 +130,11 @@ const title = computed(() => (route.meta.title as string) || '工作台')
 
 async function onCommand(command: string | number | object) {
   if (command !== 'logout') return
-  await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
+  try {
+    await confirmAction('确认退出登录？')
+  } catch {
+    return // 用户取消 —— 原来这里没接住 reject，会抛一条未处理的 Promise rejection
+  }
   try {
     await logout()
   } catch {
@@ -259,10 +296,19 @@ async function onCommand(command: string | number | object) {
 }
 
 /* ---------- 内容区 ---------- */
-/* ⚠️ 这个 padding 是全站页面唯一的来源：业务页（如 .employee-page）自己没有内边距，
-   删掉它所有页面会贴到屏幕边缘。等阶段 3 把页面收敛到 .page-container 时再一起收口。 */
+/* ⚠️ 这个 padding 是**非列表页**（dashboard / placeholder / 404）的内边距来源 ——
+   它们根类不是 .page-container，靠这里撑开。列表页已收敛到 .page-container（自带 16px），
+   由全局规则 `.layout .main:has(> .page-container){padding:0}` 让出；
+   **那条规则长期保留、不要删**（结论见 交接文档 §9「阶段 3」的内边距一节）。 */
 .main {
   background: var(--hr-bg-page);
   padding: var(--hr-space-4);
+}
+
+/* 窄屏（阶段 4 响应式）：内容区内边距收窄一档，把宽度让给表格 */
+@media (max-width: 900px) {
+  .main {
+    padding: var(--hr-space-3);
+  }
 }
 </style>

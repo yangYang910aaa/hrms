@@ -40,19 +40,19 @@
       </div>
 
       <el-table :data="records" v-loading="loading" stripe>
-        <el-table-column label="课程" min-width="150" show-overflow-tooltip>
+        <el-table-column label="课程" min-width="130" show-overflow-tooltip>
           <template #default="{ row }">{{ courseName(row.courseId) }}</template>
         </el-table-column>
-        <el-table-column label="期次编号" prop="batchNo" width="120" />
-        <el-table-column label="参训部门" min-width="110" show-overflow-tooltip>
+        <el-table-column label="期次编号" prop="batchNo" min-width="104" />
+        <el-table-column label="参训部门" min-width="100" show-overflow-tooltip>
           <template #default="{ row }">{{ deptName(row.deptId) }}</template>
         </el-table-column>
-        <el-table-column label="讲师" prop="trainer" width="100" />
-        <el-table-column label="开始日期" prop="startDate" width="115" />
-        <el-table-column label="结束日期" prop="endDate" width="115" />
-        <el-table-column label="参训人数" prop="workerCount" width="90" align="right" />
-        <el-table-column label="合格人数" prop="qualifiedCount" width="90" align="right" />
-        <el-table-column label="状态" width="92">
+        <el-table-column label="讲师" prop="trainer" min-width="80" />
+        <el-table-column label="开始日期" prop="startDate" min-width="106" />
+        <el-table-column label="结束日期" prop="endDate" min-width="106" />
+        <el-table-column label="参训人数" prop="workerCount" min-width="68" align="right" />
+        <el-table-column label="合格人数" prop="qualifiedCount" min-width="68" align="right" />
+        <el-table-column label="状态" min-width="84">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
           </template>

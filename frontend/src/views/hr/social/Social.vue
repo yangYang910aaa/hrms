@@ -41,26 +41,26 @@
       </div>
 
       <el-table :data="records" v-loading="loading" stripe>
-        <el-table-column label="职工" min-width="120">
+        <el-table-column label="职工" min-width="110">
           <template #default="{ row }">{{ empName(row.employeeId) }}</template>
         </el-table-column>
-        <el-table-column label="社保编号" prop="ssNo" min-width="120" show-overflow-tooltip />
-        <el-table-column label="缴费基数" width="120" align="right">
+        <el-table-column label="社保编号" prop="ssNo" min-width="100" show-overflow-tooltip />
+        <el-table-column label="缴费基数" min-width="100" align="right">
           <template #default="{ row }">{{ money(row.baseAmount) }}</template>
         </el-table-column>
-        <el-table-column label="单位比例" width="150" align="right">
+        <el-table-column label="单位比例" min-width="100" align="right" show-overflow-tooltip>
           <template #default="{ row }">{{ percent(row.companyRate) }}</template>
         </el-table-column>
-        <el-table-column label="个人比例" width="150" align="right">
+        <el-table-column label="个人比例" min-width="100" align="right" show-overflow-tooltip>
           <template #default="{ row }">{{ percent(row.personalRate) }}</template>
         </el-table-column>
-        <el-table-column label="单位缴纳额" width="120" align="right">
+        <el-table-column label="单位缴纳额" min-width="96" align="right">
           <template #default="{ row }">{{ money(row.companyAmount) }}</template>
         </el-table-column>
-        <el-table-column label="个人缴纳额" width="120" align="right">
+        <el-table-column label="个人缴纳额" min-width="96" align="right">
           <template #default="{ row }">{{ money(row.personalAmount) }}</template>
         </el-table-column>
-        <el-table-column label="所属月份" prop="month" width="100" />
+        <el-table-column label="所属月份" prop="month" min-width="88" />
         <el-table-column label="操作" width="76" fixed="right">
           <template #default="{ row }">
             <div class="op-btns">

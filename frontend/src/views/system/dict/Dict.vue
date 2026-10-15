@@ -36,9 +36,9 @@
             highlight-current-row
             @current-change="onTypeChange"
           >
-            <el-table-column label="名称" prop="dictName" min-width="100" show-overflow-tooltip />
-            <el-table-column label="标识" prop="dictType" min-width="90" show-overflow-tooltip />
-            <el-table-column label="状态" width="60">
+            <el-table-column label="名称" prop="dictName" min-width="84" show-overflow-tooltip />
+            <el-table-column label="标识" prop="dictType" min-width="80" show-overflow-tooltip />
+            <el-table-column label="状态" min-width="56">
               <template #default="{ row }">
                 <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
                   {{ row.status === 1 ? '正常' : '停用' }}
