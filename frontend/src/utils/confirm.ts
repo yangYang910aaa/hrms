@@ -41,7 +41,22 @@ export function confirmDelete(message: string) {
   })
 }
 
-/** 非删除类操作确认（发布 / 下线 / 确认 / 重算 / 发放等）：保持既有「提示」样式 */
+/**
+ * **不可逆操作**确认（确认工资档案 / 发放工资这类"做了就回不去"的动作）：
+ * 与 `confirmDelete` 一样用**红色**确认按钮，但标题是「请确认」——
+ * 这些动作本身不是"删除"，用「删除确认」会词不达意。
+ * （发布 / 下线 / 启用停用这类可撤销的仍用 `confirmAction` 的蓝色「确定」。）
+ */
+export function confirmIrreversible(message: string) {
+  return ElMessageBox.confirm(message, '请确认', {
+    type: 'warning',
+    confirmButtonText: '确认执行',
+    cancelButtonText: '取消',
+    confirmButtonClass: 'el-button--danger'
+  })
+}
+
+/** 非删除类、且可撤销的操作确认（发布 / 下线 / 启用停用等）：「提示」+ 蓝色确定 */
 export function confirmAction(message: string, title = '提示') {
   return ElMessageBox.confirm(message, title, {
     type: 'warning',

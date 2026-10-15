@@ -216,7 +216,7 @@ import type {
   SalPaymentUpdateDTO,
   SalPaymentVO
 } from '@/types/api'
-import { confirmAction, confirmDelete } from '@/utils/confirm'
+import { confirmDelete, confirmIrreversible } from '@/utils/confirm'
 
 // ---------- 列表 ----------
 const loading = ref(false)
@@ -304,7 +304,7 @@ async function onGenerate() {
 // ---------- 发放 ----------
 async function onPay(row: SalPaymentVO) {
   try {
-    await confirmAction(`确认给【${row.employeeName}】发放 ${row.month} 的工资 ${money(row.netSalary)}？发放后不可撤销，对应工资档案也会置为已发放。`)
+    await confirmIrreversible(`确认给【${row.employeeName}】发放 ${row.month} 的工资 ${money(row.netSalary)}？发放后不可撤销，对应工资档案也会置为已发放。`)
   } catch {
     return
   }

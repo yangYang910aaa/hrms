@@ -279,7 +279,7 @@ import type {
   SalArchiveUpdateDTO,
   SalArchiveVO
 } from '@/types/api'
-import { confirmAction, confirmDelete } from '@/utils/confirm'
+import { confirmDelete, confirmIrreversible } from '@/utils/confirm'
 
 // ---------- 枚举 ----------
 const STATUS_OPTIONS = [
@@ -392,7 +392,7 @@ async function onCalc() {
 // ---------- 确认 ----------
 async function onConfirm(row: SalArchiveVO) {
   try {
-    await confirmAction(`确认职工【${row.employeeName}】${row.month} 的工资档案？确认后不可再改、不可重算，下一步才能生成发放单。`)
+    await confirmIrreversible(`确认职工【${row.employeeName}】${row.month} 的工资档案？确认后不可再改、不可重算，下一步才能生成发放单。`)
   } catch {
     return
   }
